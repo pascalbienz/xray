@@ -328,6 +328,8 @@ main(int argc, char** argv)
 	int * voxels;
 	int w, h, d;
 
+	int threshold=100;
+	float pixSize=11.803;
 
 	/*int * testData = new int[100 * 100 * 100];
 	for (int i = 0; i < 1000000; i++)
@@ -390,7 +392,7 @@ main(int argc, char** argv)
 
 		std::cout << "Extract dir :\n";
 		std::cout << argv[pcl::console::find_argument(argc, argv, "-p") + 1];
-		bmpConverter::loadDataSet(argv[pcl::console::find_argument(argc, argv, "-p") + 1], cloud, &voxels, w, h, d);
+		imageVolumeLoader::loadDataSet(argv[pcl::console::find_argument(argc, argv, "-p") + 1], cloud, &voxels, w, h, d, threshold, pixSize);
 		return 0;
 	}
 	else if (pcl::console::find_argument(argc, argv, "-j") >= 0)
@@ -400,7 +402,7 @@ main(int argc, char** argv)
 		voxels = NULL;
 		std::cout << "Extract dir :\n";
 		std::cout << argv[pcl::console::find_argument(argc, argv, "-j") + 1];
-		bmpConverter::loadDataSet(argv[pcl::console::find_argument(argc, argv, "-j") + 1], cloud, &voxels, w, h, d);
+		imageVolumeLoader::loadDataSet(argv[pcl::console::find_argument(argc, argv, "-j") + 1], cloud, &voxels, w, h, d, threshold, pixSize);
 		transf = true;
 		//return 0;
 	}
@@ -511,7 +513,7 @@ main(int argc, char** argv)
 
 		test.toPoints(cloud2, voxels, w, h, d, 11.8);
 
-		bmpConverter::correctCenter(cloud, (float)w / 2*pixSize, (float)h / 2*pixSize, (float)d / 2*pixSize, test.cogX, test.cogY, test.cogZ);
+		imageVolumeLoader::correctCenter(cloud, (float)w / 2*pixSize, (float)h / 2*pixSize, (float)d / 2*pixSize, test.cogX, test.cogY, test.cogZ);
 
 		viewer = simpleVis(cloud);
 

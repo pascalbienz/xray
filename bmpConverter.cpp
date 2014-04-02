@@ -4,27 +4,33 @@ using namespace std;
 
 //using namespace cv;
 
-bmpConverter::bmpConverter()
+imageVolumeLoader::imageVolumeLoader()
 {
 }
 
 
-bmpConverter::~bmpConverter()
+imageVolumeLoader::~imageVolumeLoader()
 {
 }
 
-bool bmpConverter::smoothing=true;
-int bmpConverter::smoothingInt=10;
+//bool imageVolumeLoader::smoothing=true;
+//int imageVolumeLoader::smoothingInt=10;
 
-void bmpConverter::loadDataSet(std::string path_directory, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * * voxels, int &w, int &h, int &d)
+
+/*
+
+To be used for tests purpose
+
+*/
+void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * * voxels, int &w, int &h, int &d, int threshold, float pixSize )
 {
 	path p(path_directory);   // p reads clearer than argv[1] in the following code
 
-	int threshold = 80;
-	float pixSize = 11.80303;//11.8;// *pow(10., -6);
+	//int threshold = 80;
+	//float pixSize = 11.80303;//11.8;// *pow(10., -6);
 
-	smoothing=false;
-	smoothingInt=10;
+	//smoothing=false;
+	//smoothingInt=10;
 
 	if (exists(p))    // does p actually exist?
 	{
@@ -92,7 +98,49 @@ void bmpConverter::loadDataSet(std::string path_directory, pcl::PointCloud<pcl::
 		cout << p << "does not exist\n";
 }
 
-void bmpConverter::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, float centerX, float centerY, float centerZ, float cogX, float cogY, float cogZ)
+void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * * voxels, int &w, int &h, int &d, int threshold, float pixSize, bool smoothing, int smoothingAmount )
+{
+
+	if(pathfiles.size()>0)
+	{
+
+	
+
+	cv::Mat image = cv::imread(pathfiles.at(0));
+
+	(*voxels) = new int[image.rows*image.cols*(pathfiles.size())];
+
+	w=image.cols;
+	h=image.rows;
+	d = pathfiles.size();
+	
+
+
+	float z = -(float)d/2*pixSize;
+
+	int count = 0;
+
+	for (int it=0; it < pathfiles.size(); ++it)
+	{
+
+			notify_("   " + pathfiles[it]);
+			processImage(pathfiles[it], pixSize, z, pointCloud,threshold,(*voxels)+count*image.rows*image.cols);
+			z += pixSize;
+			count++;
+		}
+	}
+
+	//d=count;
+
+	pointCloud->width = (int)pointCloud->points.size();
+	pointCloud->height=1;
+
+
+	
+
+}
+
+void imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, float centerX, float centerY, float centerZ, float cogX, float cogY, float cogZ)
 {
 	for (int i = 0; i < pointCloud->size(); i++)
 	{
@@ -107,7 +155,7 @@ void bmpConverter::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud
 
 
 
-void bmpConverter::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, int * voxels)
+void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, int * voxels, bool smoothing, int smoothingAmount)
 {
 
 	int width, height;
@@ -115,7 +163,7 @@ void bmpConverter::processImage(string pathBmp, float pixSize, float z, pcl::Poi
 	cv::Mat image = cv::imread(pathBmp);
 
 	if (smoothing)
-	cv::GaussianBlur(image, image, cv::Size(smoothingInt, smoothingInt), 0, 0);
+	cv::GaussianBlur(image, image, cv::Size((smoothingAmount/2)*2+1, (smoothingAmount/2)*2+1), 0, 0);
 
 	cv::Mat::MSize dimensions(image.size);
 
@@ -165,42 +213,10 @@ void bmpConverter::processImage(string pathBmp, float pixSize, float z, pcl::Poi
 			else
 				voxels[j/channels+i*image.cols]=0;
 
-			//image.at<uchar>(i, j)
-
+			
 		}
 	}
 
-	//cv::namedWindow("My Figure 1", 1);
-	//cv::imshow("My Figure 1", image);
-	//cv::waitKey(0);
-
-	/*cv::namedWindow("My Figure 1", 1);
-	cv::imshow("My Figure 1", image);
-	cv::waitKey(0);*/
-
-	/*
-
-
-
-	namedWindow("My Figure 1", 1);
-	imshow("My Figure 1", a1);
-	waitKey(0);
-	//----------------------------------------------------------------------------------------- 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::io::loadPCDFile(argv[1], *cloud);
-
-	cout << (cloud->points).size() << endl;
-
-	std::vector<float> feature;
-
-	feature.resize((cloud->points).size() * 3);
-
-	for (int i = 1; i < (cloud->points).size(); i++)
-	{
-		feature[i * 3] = (cloud->points[i]).x;
-		feature[i * 3 + 1] = cloud->points[i].y;
-		feature[i * 3 + 2] = cloud->points[i].z;
-	}*/
-
+	
 
 }
