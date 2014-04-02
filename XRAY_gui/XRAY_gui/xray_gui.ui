@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1043</width>
+    <width>956</width>
     <height>760</height>
    </rect>
   </property>
@@ -33,7 +33,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -102,7 +102,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1043</width>
+     <width>956</width>
      <height>21</height>
     </rect>
    </property>
@@ -174,35 +174,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Pre-thresholding</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="prethresholdspinBox"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Gaussian blur (Edge refining)</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="gaussianspinBox"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="loadVolumePushButton">
+         <widget class="QPushButton" name="pushButton">
           <property name="text">
            <string>Load volumetric data</string>
           </property>
@@ -211,9 +183,7 @@
        </layout>
        <zorder></zorder>
        <zorder>listView</zorder>
-       <zorder>loadVolumePushButton</zorder>
-       <zorder>horizontalLayoutWidget</zorder>
-       <zorder>horizontalLayoutWidget_2</zorder>
+       <zorder>pushButton</zorder>
       </widget>
      </item>
     </layout>
@@ -398,24 +368,6 @@
         </property>
        </item>
       </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_5">
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="windowTitle">
-    <string>Info</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QVBoxLayout" name="verticalLayout_9">
-     <item>
-      <widget class="QTextBrowser" name="textBrowser"/>
      </item>
     </layout>
    </widget>

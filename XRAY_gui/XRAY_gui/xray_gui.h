@@ -11,7 +11,6 @@
 #include <QPointer>
 #include <QLabel>
 #include <QProgressBar>
-#include <QHash>
 
 #include <boost/thread/thread.hpp>
 #include <pcl/common/common_headers.h>
@@ -25,10 +24,9 @@
 #include <pcl/sample_consensus/sac_model_plane.h>
 #include <pcl/sample_consensus/sac_model_cylinder.h>
 #include <pcl/visualization/pcl_plotter.h>
-#include "build/notify.h"
 
 
-class XRAY_gui : public QMainWindow, public iobserverClass
+class XRAY_gui : public QMainWindow
 {
 	Q_OBJECT
 
@@ -43,17 +41,12 @@ public:
 
 	QPixmap image;
 
-	pcl::visualization::PCLVisualizer * viewer; 
+	pcl::visualization::PCLVisualizer viewer; 
 
-	QHash<QString, int *> volumes;
-
-	QHash<QString, void *> pointClouds;
 
 	void showImage(int i);
 
 	void fitImage();
-
-	void updateNotify(std::string message);
 
 public	slots: void on_toolButton_clicked();
 
@@ -63,17 +56,9 @@ public	slots: void on_toolButton_clicked();
 
 void deleteItem();
 
-
-void itemcurrentChanged ( const QModelIndex & current);
-void on_loadVolumePushButton_clicked();
-void update();
-
-
-void secureThreadUpdate(QString data);
-QString getFile(int i);
+void on_listView_selectionChanged ( const QItemSelection & selected, const QItemSelection & deselected );
 private:
 	Ui::XRAY_guiClass ui;
-	QLabel * usagelabelStatus;
 };
 
 #endif // XRAY_GUI_H
