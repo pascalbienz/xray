@@ -17,6 +17,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QGroupBox>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
@@ -29,6 +30,7 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTabWidget>
+#include <QtGui/QTextBrowser>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeWidget>
@@ -66,7 +68,13 @@ public:
     QLineEdit *lineEdit;
     QToolButton *toolButton;
     QListView *listView;
-    QPushButton *pushButton;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label_2;
+    QSpinBox *prethresholdspinBox;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label_4;
+    QSpinBox *gaussianspinBox;
+    QPushButton *loadVolumePushButton;
     QDockWidget *dockWidget_2;
     QWidget *dockWidgetContents_3;
     QGridLayout *gridLayout_6;
@@ -96,12 +104,16 @@ public:
     QWidget *dockWidgetContents_7;
     QVBoxLayout *verticalLayout_5;
     QTreeWidget *treeWidget;
+    QDockWidget *dockWidget_5;
+    QWidget *dockWidgetContents_2;
+    QVBoxLayout *verticalLayout_9;
+    QTextBrowser *textBrowser;
 
     void setupUi(QMainWindow *XRAY_guiClass)
     {
         if (XRAY_guiClass->objectName().isEmpty())
             XRAY_guiClass->setObjectName(QString::fromUtf8("XRAY_guiClass"));
-        XRAY_guiClass->resize(956, 760);
+        XRAY_guiClass->resize(1043, 760);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -166,7 +178,7 @@ public:
         XRAY_guiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(XRAY_guiClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 956, 21));
+        menuBar->setGeometry(QRect(0, 0, 1043, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         XRAY_guiClass->setMenuBar(menuBar);
@@ -216,13 +228,45 @@ public:
 
         verticalLayout_3->addWidget(listView);
 
-        pushButton = new QPushButton(groupBox);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        label_2 = new QLabel(groupBox);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        verticalLayout_3->addWidget(pushButton);
+        horizontalLayout->addWidget(label_2);
+
+        prethresholdspinBox = new QSpinBox(groupBox);
+        prethresholdspinBox->setObjectName(QString::fromUtf8("prethresholdspinBox"));
+
+        horizontalLayout->addWidget(prethresholdspinBox);
+
+
+        verticalLayout_3->addLayout(horizontalLayout);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(6);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        label_4 = new QLabel(groupBox);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        horizontalLayout_2->addWidget(label_4);
+
+        gaussianspinBox = new QSpinBox(groupBox);
+        gaussianspinBox->setObjectName(QString::fromUtf8("gaussianspinBox"));
+
+        horizontalLayout_2->addWidget(gaussianspinBox);
+
+
+        verticalLayout_3->addLayout(horizontalLayout_2);
+
+        loadVolumePushButton = new QPushButton(groupBox);
+        loadVolumePushButton->setObjectName(QString::fromUtf8("loadVolumePushButton"));
+
+        verticalLayout_3->addWidget(loadVolumePushButton);
 
         listView->raise();
-        pushButton->raise();
+        loadVolumePushButton->raise();
 
         verticalLayout->addWidget(groupBox);
 
@@ -375,6 +419,22 @@ public:
 
         dockWidget_4->setWidget(dockWidgetContents_7);
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget_4);
+        dockWidget_5 = new QDockWidget(XRAY_guiClass);
+        dockWidget_5->setObjectName(QString::fromUtf8("dockWidget_5"));
+        dockWidget_5->setFloating(false);
+        dockWidgetContents_2 = new QWidget();
+        dockWidgetContents_2->setObjectName(QString::fromUtf8("dockWidgetContents_2"));
+        verticalLayout_9 = new QVBoxLayout(dockWidgetContents_2);
+        verticalLayout_9->setSpacing(6);
+        verticalLayout_9->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
+        textBrowser = new QTextBrowser(dockWidgetContents_2);
+        textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
+
+        verticalLayout_9->addWidget(textBrowser);
+
+        dockWidget_5->setWidget(dockWidgetContents_2);
+        XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockWidget_5);
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionImport_settings);
@@ -382,7 +442,7 @@ public:
 
         retranslateUi(XRAY_guiClass);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(XRAY_guiClass);
@@ -400,7 +460,9 @@ public:
         dockWidget->setWindowTitle(QApplication::translate("XRAY_guiClass", "Project", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("XRAY_guiClass", "Files", 0, QApplication::UnicodeUTF8));
         toolButton->setText(QApplication::translate("XRAY_guiClass", "...", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("XRAY_guiClass", "Load volumetric data", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("XRAY_guiClass", "Pre-thresholding", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("XRAY_guiClass", "Gaussian blur (Edge refining)", 0, QApplication::UnicodeUTF8));
+        loadVolumePushButton->setText(QApplication::translate("XRAY_guiClass", "Load volumetric data", 0, QApplication::UnicodeUTF8));
         dockWidget_2->setWindowTitle(QApplication::translate("XRAY_guiClass", "Visualize", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("XRAY_guiClass", "Histogram", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
@@ -428,6 +490,7 @@ public:
         ___qtreewidgetitem4->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
         treeWidget->setSortingEnabled(__sortingEnabled);
 
+        dockWidget_5->setWindowTitle(QApplication::translate("XRAY_guiClass", "Info", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
