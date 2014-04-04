@@ -507,11 +507,13 @@ main(int argc, char** argv)
 
 		::test.skeletonize(voxels, w, h, d);
 
-		pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZI>);
+		::test.isolatePoints();
+
+		pcl::PointCloud<pcl::PointXYZI> * cloud2 = new pcl::PointCloud<pcl::PointXYZI>();
 
 		float pixSize=11.80303;//11.8;
 
-		test.toPoints(cloud2, voxels, w, h, d, 11.8);
+		test.skeletonToPoints(cloud2, voxels, w, h, d, 11.8);
 
 		imageVolumeLoader::correctCenter(cloud, (float)w / 2*pixSize, (float)h / 2*pixSize, (float)d / 2*pixSize, test.cogX, test.cogY, test.cogZ);
 
@@ -524,7 +526,7 @@ main(int argc, char** argv)
 		//viewer->addPointCloud<pcl::PointXYZI>(cloud, handler, "sample cloud");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.2, "sample cloud");
-		viewer->addPointCloud<pcl::PointXYZI>(cloud2, "cloud_");
+		viewer->addPointCloud<pcl::PointXYZI>(pcl::PointCloud<pcl::PointXYZI>::Ptr(cloud2), "cloud_");
 
 		cloud2->width=cloud2->size();
 		cloud2->height=1;

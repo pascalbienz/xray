@@ -35,6 +35,7 @@ class VolumeData
 public:
 	int * voxels;
 	int w,h,d;
+	float pixSize;
 };
 
 class LoadingParam
@@ -50,6 +51,24 @@ public :
 
 };
 
+class ThreadLoaderSkeletonWorker : public QObject
+{
+	Q_OBJECT
+
+public :
+
+	ThreadLoaderSkeletonWorker(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI> * cloud2,VolumeData * currentData);
+
+
+public slots:
+	void run();
+
+private:
+	matVoxel * vox; pcl::PointCloud<pcl::PointXYZI> * cloud2;VolumeData * currentData;
+
+signals:
+	void getRes(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
+};
 
 class XRAY_gui : public QMainWindow, public iobserverClass
 {
@@ -71,6 +90,8 @@ public:
 	QHash<QString, VolumeData *> volumes;
 
 	QHash<QString, void *> pointClouds;
+
+	QHash<QString, matVoxel *> algData;
 
 	void showImage(int i);
 
@@ -102,6 +123,11 @@ public	slots: void on_toolButton_clicked();
 	void on_treeWidget_itemSelectionChanged();
 	void on_pointsizespinBox_valueChanged(int i);
 	void on_opacitydoubleSpinBox_valueChanged(double i);
+	VolumeData * getActiveVolume();
+	void on_skeletonizepushButton_clicked();
+	void * getActiveCloud();
+	matVoxel * getActiveSkeleton();
+	void skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2,VolumeData * currentData);
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

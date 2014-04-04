@@ -797,14 +797,14 @@ void matVoxel::algo2()
 
 	while (iteration)
 	{
-		cout << "Phase : " << id++ << endl;
-		cout << "Deleted : "<<del_<<endl;
+		notify_( ((ostringstream&)(ostringstream()<< "Phase : " << id++ <<"" )).str());
+		notify_( ((ostringstream&)(ostringstream()<< "Deleted : "<<del_<<"")).str());
 
 		iteration=false;
 
 		for (int d_ = 0; d_ < 6; d_++)
 		{
-			cout << "Direction " << d_ << endl;
+			notify_(((ostringstream&)(ostringstream() << "Direction " << d_ << "")).str());
 
 			for (int z = 1; z < d - 1; z++)
 			{
@@ -864,7 +864,7 @@ void matVoxel::algo2()
 
 	}
 
-	isolatePoints();
+	
 }
 
 void matVoxel::algo()
@@ -1774,7 +1774,7 @@ pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCl
 
 }
 
-void matVoxel::toPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * voxels, int w, int h, int d, float pixSize)
+void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI> * pointCloud, int * voxels, int w, int h, int d, float pixSize)
 {
 
 	float centerX = w*pixSize / 2;

@@ -89,8 +89,8 @@ public:
     QFormLayout *formLayout;
     QGroupBox *groupBox_2;
     QVBoxLayout *verticalLayout_4;
-    QPushButton *pushButton_2;
-    QPushButton *pushButton_3;
+    QPushButton *skeletonizepushButton;
+    QPushButton *pushButton_;
     QPushButton *pushButton_6;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_6;
@@ -126,7 +126,7 @@ public:
     {
         if (XRAY_guiClass->objectName().isEmpty())
             XRAY_guiClass->setObjectName(QString::fromUtf8("XRAY_guiClass"));
-        XRAY_guiClass->resize(1043, 760);
+        XRAY_guiClass->resize(1420, 902);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -191,7 +191,7 @@ public:
         XRAY_guiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(XRAY_guiClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1043, 21));
+        menuBar->setGeometry(QRect(0, 0, 1420, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         XRAY_guiClass->setMenuBar(menuBar);
@@ -341,15 +341,15 @@ public:
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        pushButton_2 = new QPushButton(groupBox_2);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        skeletonizepushButton = new QPushButton(groupBox_2);
+        skeletonizepushButton->setObjectName(QString::fromUtf8("skeletonizepushButton"));
 
-        verticalLayout_4->addWidget(pushButton_2);
+        verticalLayout_4->addWidget(skeletonizepushButton);
 
-        pushButton_3 = new QPushButton(groupBox_2);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButton_ = new QPushButton(groupBox_2);
+        pushButton_->setObjectName(QString::fromUtf8("pushButton_"));
 
-        verticalLayout_4->addWidget(pushButton_3);
+        verticalLayout_4->addWidget(pushButton_);
 
         pushButton_6 = new QPushButton(groupBox_2);
         pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
@@ -445,8 +445,12 @@ public:
         new QTreeWidgetItem(__qtreewidgetitem1);
         new QTreeWidgetItem(__qtreewidgetitem1);
         new QTreeWidgetItem(__qtreewidgetitem1);
+        new QTreeWidgetItem(__qtreewidgetitem1);
         new QTreeWidgetItem(treeWidget);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setAutoExpandDelay(-1);
+        treeWidget->setAnimated(true);
+        treeWidget->setHeaderHidden(false);
 
         verticalLayout_5->addWidget(treeWidget);
 
@@ -477,6 +481,7 @@ public:
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(propertiesdockWidget->sizePolicy().hasHeightForWidth());
         propertiesdockWidget->setSizePolicy(sizePolicy1);
+        propertiesdockWidget->setMaximumSize(QSize(300, 90));
         propertiesdockWidget->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_5 = new QWidget();
         dockWidgetContents_5->setObjectName(QString::fromUtf8("dockWidgetContents_5"));
@@ -529,7 +534,7 @@ public:
 
         retranslateUi(XRAY_guiClass);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(XRAY_guiClass);
@@ -554,8 +559,8 @@ public:
         dockWidget_2->setWindowTitle(QApplication::translate("XRAY_guiClass", "Visualize", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("XRAY_guiClass", "Histogram", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
-        pushButton_2->setText(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
-        pushButton_3->setText(QApplication::translate("XRAY_guiClass", "Clean Skeleton (Pruning)", 0, QApplication::UnicodeUTF8));
+        skeletonizepushButton->setText(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
+        pushButton_->setText(QApplication::translate("XRAY_guiClass", "Clean Skeleton (Pruning)", 0, QApplication::UnicodeUTF8));
         pushButton_6->setText(QApplication::translate("XRAY_guiClass", "PushButton", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("XRAY_guiClass", "Smoothing", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("XRAY_guiClass", "Order", 0, QApplication::UnicodeUTF8));
@@ -573,9 +578,11 @@ public:
         QTreeWidgetItem *___qtreewidgetitem2 = ___qtreewidgetitem->child(1);
         ___qtreewidgetitem2->setText(0, QApplication::translate("XRAY_guiClass", "Paths", 0, QApplication::UnicodeUTF8));
         QTreeWidgetItem *___qtreewidgetitem3 = ___qtreewidgetitem->child(2);
-        ___qtreewidgetitem3->setText(0, QApplication::translate("XRAY_guiClass", "Points", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem4 = treeWidget->topLevelItem(1);
-        ___qtreewidgetitem4->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
+        ___qtreewidgetitem3->setText(0, QApplication::translate("XRAY_guiClass", "Skeletons", 0, QApplication::UnicodeUTF8));
+        QTreeWidgetItem *___qtreewidgetitem4 = ___qtreewidgetitem->child(3);
+        ___qtreewidgetitem4->setText(0, QApplication::translate("XRAY_guiClass", "Points", 0, QApplication::UnicodeUTF8));
+        QTreeWidgetItem *___qtreewidgetitem5 = treeWidget->topLevelItem(1);
+        ___qtreewidgetitem5->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
         treeWidget->setSortingEnabled(__sortingEnabled);
 
         dockWidget_5->setWindowTitle(QApplication::translate("XRAY_guiClass", "Info", 0, QApplication::UnicodeUTF8));

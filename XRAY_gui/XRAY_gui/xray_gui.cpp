@@ -50,6 +50,8 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 	viewer = new pcl::visualization::PCLVisualizer();
 	
 	ui.qvtkWidget->SetRenderWindow(viewer->getRenderWindow());
+
+	ui.treeWidget->expandAll();
 }
 
 XRAY_gui::~XRAY_gui()
@@ -198,9 +200,10 @@ void XRAY_gui::on_loadVolumePushButton_clicked()
 	parameters = new LoadingParam();
 
 	parameters->matrix=new VolumeData();
+	parameters->matrix->pixSize=ui.pixSizedoubleSpinBox->value();
 	parameters->pointCloud=pointCloud;
 	parameters->threshold=ui.prethresholdspinBox->value();
-	parameters->pixSize=ui.pixSizedoubleSpinBox->value();
+	//parameters->pixSize=ui.pixSizedoubleSpinBox->value();
 
 	for(int i=0;i<listFiles->stringList().size();i++)
 		parameters->vec.push_back(getFile(i).toStdString());
@@ -231,7 +234,7 @@ void XRAY_gui::on_loadVolumePushButton_clicked()
 void XRAY_gui::startLoading(LoadingParam &param)
 {
 
-	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.pixSize,param.Smoothing,param.SmoothingInt);
+	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.matrix->pixSize,param.Smoothing,param.SmoothingInt);
 
 	
 }
@@ -248,7 +251,7 @@ void XRAY_gui::handleLoading()
 	
 	volumes.insert(name,parameters->matrix);
 
-	pointClouds.insert(name,parameters->matrix);
+	pointClouds.insert(name,static_cast<void*>(parameters->pointCloud.get()));
 
 	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("3D",Qt::MatchContains|Qt::MatchRecursive);
 
@@ -258,6 +261,8 @@ void XRAY_gui::handleLoading()
 
 
 	delete parameters;
+
+	viewer->resetCamera();
 
 	viewer->spin();
 
@@ -386,4 +391,134 @@ void XRAY_gui::on_opacitydoubleSpinBox_valueChanged(double i)
 			viewer->spin();
 		}
 	}
+}
+
+VolumeData * XRAY_gui::getActiveVolume()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(volumes[items[0]->text(0)])
+		{
+			return volumes[items[0]->text(0)];
+		}
+	}
+
+	return NULL;
+}
+
+void * XRAY_gui::getActiveCloud()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(pointClouds[items[0]->text(0)])
+		{
+			return pointClouds[items[0]->text(0)];
+		}
+	}
+
+	return NULL;
+}
+
+matVoxel * XRAY_gui::getActiveSkeleton()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(algData[items[0]->text(0)])
+		{
+			return algData[items[0]->text(0)];
+		}
+	}
+
+	return NULL;
+}
+
+
+
+
+
+
+ThreadLoaderSkeletonWorker::ThreadLoaderSkeletonWorker(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI> * cloud2,VolumeData * currentData) : vox(vox), cloud2(cloud2),currentData(currentData)
+	{
+
+	}
+
+void ThreadLoaderSkeletonWorker::run()
+	{
+		vox->skeletonize(currentData->voxels,currentData->w,currentData->h,currentData->d);
+
+		vox->skeletonToPoints(cloud2, vox->voxels, vox->w, vox->h, vox->d, currentData->pixSize);
+
+		cloud2->width=cloud2->size();
+		cloud2->height=1;
+
+		emit getRes(vox,cloud2,currentData);
+	}
+
+
+
+void XRAY_gui::on_skeletonizepushButton_clicked()
+{
+
+	VolumeData * currentData=getActiveVolume();
+
+	if(currentData)
+	{
+		this->setEnabled(false);
+
+		matVoxel *vox=new matVoxel();
+		/*vox.voxels=currentData->voxels;
+		vox.w=currentData->w;
+		vox.h=currentData->h;
+		vox.d=currentData->d;*/
+
+		
+
+		pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZI>());
+		
+		QThread * thread=new QThread();
+
+		ThreadLoaderSkeletonWorker * threadworker = new ThreadLoaderSkeletonWorker(vox,cloud2.get(),currentData);
+
+		threadworker->moveToThread(thread);
+
+		connect(thread,SIGNAL(started()),threadworker,SLOT(run()));
+		connect(threadworker,SIGNAL(getRes(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )),this,SLOT(skeleton(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )));
+		
+		connect(threadworker, SIGNAL(finished()), thread, SLOT(quit()));
+		connect(threadworker, SIGNAL(finished()), threadworker, SLOT(deleteLater()));
+		connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+		
+
+		thread->start();
+
+		//imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr((pcl::PointCloud<pcl::PointXYZI>*)getActiveCloud()), (float)vox->w / 2*currentData->pixSize, (float)vox->h / 2*currentData->pixSize, (float)vox->d / 2*currentData->pixSize, vox->cogX, vox->cogY, vox->cogZ);
+
+		
+		
+
+	}
+
+}
+
+void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2,VolumeData * currentData)
+{
+	QString name="Skeleton MA "+QString::number(pointClouds.size());
+
+	addCloud(cloud2,name);
+
+	pointClouds.insert(name,static_cast<void*>(cloud2.get()));
+
+	algData.insert(name,voxel);
+
+	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("skeletons",Qt::MatchContains|Qt::MatchRecursive);
+
+	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+	this->setEnabled(true);
+
+	viewer->spin();
+
 }

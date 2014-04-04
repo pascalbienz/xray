@@ -12,8 +12,9 @@
 #include <opencv/highgui.h>
 #include "Wm5Core.h"
 #include "Wm5Mathematics.h"
+#include "build/notify.h"
 
-class matVoxel
+class matVoxel:public notifyClass
 {
 public:
 	matVoxel();
@@ -50,7 +51,7 @@ public:
 
 	void matVoxel::fitCurve();
 
-	void matVoxel::toPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * voxels, int w, int h, int d, float pixSize);
+	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI> * pointCloud, int * voxels, int w, int h, int d, float pixSize);
 	pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 
 
