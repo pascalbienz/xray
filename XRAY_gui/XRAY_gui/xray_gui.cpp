@@ -5,9 +5,11 @@
 #include <vtkRenderWindow.h>
 #include <windows.h>
 #include <QTimer>
+#include <QThread>
 #include <psapi.h>
 #include <qcoreapplication.h>
 #include "bmpConverter.h"
+
 
 
 XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
@@ -169,22 +171,106 @@ QString XRAY_gui::getFile(int i)
 	return ui.lineEdit->text()+"/"+listFiles->stringList().at(i);
 }
 
+class ThreadLoader : public QThread
+{
+	Q_OBJECT
+
+protected:
+	void run()
+	{
+
+	}
+
+signals:
+	void finished();
+};
+
+
+
 void XRAY_gui::on_loadVolumePushButton_clicked()
 {
 
-	matVoxel test;
+	
 	pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
 
-	std::vector<std::string> vec;
+	//std::vector<std::string> vec;
+
+	parameters = new LoadingParam();
+
+	parameters->matrix=new VolumeData();
+	parameters->pointCloud=pointCloud;
+	parameters->threshold=ui.prethresholdspinBox->value();
+	parameters->pixSize=ui.pixSizedoubleSpinBox->value();
 
 	for(int i=0;i<listFiles->stringList().size();i++)
-		vec.push_back(getFile(i).toStdString());
+		parameters->vec.push_back(getFile(i).toStdString());
 
-	imageVolumeLoader::loadDataSet(vec,pointCloud,&(test.voxels),test.w,test.h,test.d,0,11,false,0);
+	if(parameters->vec.size()>0)
+	{
 
-	viewer->addPointCloud<pcl::PointXYZI>((pcl::PointCloud<pcl::PointXYZI>::ConstPtr)pointCloud);
-	viewer->spinOnce();
+	
 
+	QFutureWatcher<void> * watcher = new QFutureWatcher<void>();
+	connect(watcher,SIGNAL(finished()),this,SLOT(handleLoading()));
+
+	QFuture<void> result =
+		QtConcurrent::run(&XRAY_gui::startLoading,*parameters);
+
+	watcher->setFuture(result);
+
+	//imageVolumeLoader::loadDataSet(vec,pointCloud,&(test.voxels),test.w,test.h,test.d,0,11,false,0);
+
+	this->setEnabled(false);
+
+	}
+	else
+		delete parameters;
+
+}
+
+void XRAY_gui::startLoading(LoadingParam &param)
+{
+
+	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.pixSize,param.Smoothing,param.SmoothingInt);
+
+	
+}
+
+void XRAY_gui::handleLoading()
+{
+
+
+	QString name="Volume "+QString::number(volumes.size());
+
+	this->setEnabled(true);
+
+	addCloud(parameters->pointCloud, name);
+	
+	volumes.insert(name,parameters->matrix);
+
+	pointClouds.insert(name,parameters->matrix);
+
+	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("3D",Qt::MatchContains|Qt::MatchRecursive);
+
+	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+	//ui.treeWidget->insertTopLevelItem(
+
+
+	delete parameters;
+
+	viewer->spin();
+
+	
+}
+
+void XRAY_gui::addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QString &name ) 
+{
+	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> handler(pointCloud, "intensity");
+	viewer->addPointCloud<pcl::PointXYZI>((pcl::PointCloud<pcl::PointXYZI>::ConstPtr)pointCloud,handler,name.toStdString());
+	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, name.toStdString());
+	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.5, name.toStdString());
+	
 }
 
 
@@ -236,7 +322,7 @@ void XRAY_gui::update()
 
 void XRAY_gui::updateNotify(std::string message)
 {
-	QCoreApplication::postEvent(NULL, new QEvent(QEvent::UpdateRequest),
+	QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest),
 		Qt::LowEventPriority);
 	QMetaObject::invokeMethod((QObject*)this, "secureThreadUpdate", Q_ARG(QString,QString::fromStdString(message)));
 }
@@ -244,6 +330,60 @@ void XRAY_gui::updateNotify(std::string message)
 void XRAY_gui::secureThreadUpdate(QString data)
 {
 
-	ui.textBrowser->append(data+"\r\n");
+	ui.textBrowser->append(data);//+"\r\n");
 
+}
+
+bool _internal=false;
+
+void XRAY_gui::on_treeWidget_itemSelectionChanged()
+{
+	_internal=true;
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(pointClouds[items[0]->text(0)])
+		{
+			double tmp;
+			//ui.propertiesdockWidget->setDisabled(false);
+			ui.propertiesdockWidget->setEnabled(true);
+			viewer->getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, tmp, items[0]->text(0).toStdString());
+			ui.pointsizespinBox->setValue(tmp);
+			viewer->getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY,tmp, items[0]->text(0).toStdString());
+			ui.opacitydoubleSpinBox->setValue(tmp);
+		}
+		else
+			ui.propertiesdockWidget->setEnabled(false);
+	}
+	_internal=false;
+}
+
+void XRAY_gui::on_pointsizespinBox_valueChanged(int i)
+{
+	if(_internal)
+		return;
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(pointClouds[items[0]->text(0)])
+		{
+			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, ui.pointsizespinBox->value(), items[0]->text(0).toStdString());
+			viewer->spin();
+		}
+	}
+}
+
+void XRAY_gui::on_opacitydoubleSpinBox_valueChanged(double i)
+{
+	if(_internal)
+		return;
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(pointClouds[items[0]->text(0)])
+		{
+			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, ui.opacitydoubleSpinBox->value(), items[0]->text(0).toStdString());
+			viewer->spin();
+		}
+	}
 }

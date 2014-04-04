@@ -24,12 +24,12 @@
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Debug">
-      <UniqueIdentifier>{cebe8475-5bea-4afc-b5ff-cc91d918fa0f}</UniqueIdentifier>
+      <UniqueIdentifier>{1e0fd761-7f7b-49e6-a421-63e0d6aec110}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Release">
-      <UniqueIdentifier>{168f3e81-6a57-4e1a-9086-151039afb7e1}</UniqueIdentifier>
+      <UniqueIdentifier>{23a6f8df-33d2-4eb2-9cf8-230077bfaa71}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
@@ -38,48 +38,33 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xray_gui.cpp">
+    <ClCompile Include="uu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_xray_gui.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_uu.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_xray_gui.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_uu.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_xray_gui.cpp">
+    <ClCompile Include="GeneratedFiles\qrc_uu.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="xray_gui.h">
+    <CustomBuild Include="uu.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="xray_gui.ui">
+    <CustomBuild Include="uu.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="xray_gui.qrc">
+    <CustomBuild Include="uu.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="dialog.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\Debug\xray_gui.moc">
-      <Filter>Generated Files\Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\Release\xray_gui.moc">
-      <Filter>Generated Files\Release</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_xray_gui.h">
+    <ClInclude Include="GeneratedFiles\ui_uu.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="XRAY_gui.rc" />
   </ItemGroup>
 </Project>

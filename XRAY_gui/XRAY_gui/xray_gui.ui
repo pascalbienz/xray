@@ -174,6 +174,27 @@
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Pixel size (μm)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="pixSizedoubleSpinBox">
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="value">
+             <double>10.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QLabel" name="label_2">
@@ -183,7 +204,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="prethresholdspinBox"/>
+           <widget class="QSpinBox" name="prethresholdspinBox">
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -212,8 +240,6 @@
        <zorder></zorder>
        <zorder>listView</zorder>
        <zorder>loadVolumePushButton</zorder>
-       <zorder>horizontalLayoutWidget</zorder>
-       <zorder>horizontalLayoutWidget_2</zorder>
       </widget>
      </item>
     </layout>
@@ -406,6 +432,9 @@
    <property name="floating">
     <bool>false</bool>
    </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Info</string>
    </property>
@@ -416,6 +445,78 @@
     <layout class="QVBoxLayout" name="verticalLayout_9">
      <item>
       <widget class="QTextBrowser" name="textBrowser"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="propertiesdockWidget">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>300</width>
+     <height>90</height>
+    </size>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Properties</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_5">
+    <layout class="QVBoxLayout" name="verticalLayout_10">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Point size</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="pointsizespinBox">
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Opacity</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="opacitydoubleSpinBox">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

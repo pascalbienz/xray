@@ -14,6 +14,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QDockWidget>
+#include <QtGui/QDoubleSpinBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QGroupBox>
@@ -68,6 +69,9 @@ public:
     QLineEdit *lineEdit;
     QToolButton *toolButton;
     QListView *listView;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_5;
+    QDoubleSpinBox *pixSizedoubleSpinBox;
     QHBoxLayout *horizontalLayout;
     QLabel *label_2;
     QSpinBox *prethresholdspinBox;
@@ -108,6 +112,15 @@ public:
     QWidget *dockWidgetContents_2;
     QVBoxLayout *verticalLayout_9;
     QTextBrowser *textBrowser;
+    QDockWidget *propertiesdockWidget;
+    QWidget *dockWidgetContents_5;
+    QVBoxLayout *verticalLayout_10;
+    QHBoxLayout *horizontalLayout_7;
+    QLabel *label_9;
+    QSpinBox *pointsizespinBox;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *label_8;
+    QDoubleSpinBox *opacitydoubleSpinBox;
 
     void setupUi(QMainWindow *XRAY_guiClass)
     {
@@ -228,6 +241,24 @@ public:
 
         verticalLayout_3->addWidget(listView);
 
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        label_5 = new QLabel(groupBox);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+
+        horizontalLayout_3->addWidget(label_5);
+
+        pixSizedoubleSpinBox = new QDoubleSpinBox(groupBox);
+        pixSizedoubleSpinBox->setObjectName(QString::fromUtf8("pixSizedoubleSpinBox"));
+        pixSizedoubleSpinBox->setDecimals(4);
+        pixSizedoubleSpinBox->setValue(10);
+
+        horizontalLayout_3->addWidget(pixSizedoubleSpinBox);
+
+
+        verticalLayout_3->addLayout(horizontalLayout_3);
+
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
@@ -238,6 +269,8 @@ public:
 
         prethresholdspinBox = new QSpinBox(groupBox);
         prethresholdspinBox->setObjectName(QString::fromUtf8("prethresholdspinBox"));
+        prethresholdspinBox->setMaximum(255);
+        prethresholdspinBox->setValue(100);
 
         horizontalLayout->addWidget(prethresholdspinBox);
 
@@ -422,6 +455,7 @@ public:
         dockWidget_5 = new QDockWidget(XRAY_guiClass);
         dockWidget_5->setObjectName(QString::fromUtf8("dockWidget_5"));
         dockWidget_5->setFloating(false);
+        dockWidget_5->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_2 = new QWidget();
         dockWidgetContents_2->setObjectName(QString::fromUtf8("dockWidgetContents_2"));
         verticalLayout_9 = new QVBoxLayout(dockWidgetContents_2);
@@ -435,6 +469,59 @@ public:
 
         dockWidget_5->setWidget(dockWidgetContents_2);
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(8), dockWidget_5);
+        propertiesdockWidget = new QDockWidget(XRAY_guiClass);
+        propertiesdockWidget->setObjectName(QString::fromUtf8("propertiesdockWidget"));
+        propertiesdockWidget->setEnabled(false);
+        QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(propertiesdockWidget->sizePolicy().hasHeightForWidth());
+        propertiesdockWidget->setSizePolicy(sizePolicy1);
+        propertiesdockWidget->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
+        dockWidgetContents_5 = new QWidget();
+        dockWidgetContents_5->setObjectName(QString::fromUtf8("dockWidgetContents_5"));
+        verticalLayout_10 = new QVBoxLayout(dockWidgetContents_5);
+        verticalLayout_10->setSpacing(6);
+        verticalLayout_10->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_10->setObjectName(QString::fromUtf8("verticalLayout_10"));
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setSpacing(6);
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        label_9 = new QLabel(dockWidgetContents_5);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+
+        horizontalLayout_7->addWidget(label_9);
+
+        pointsizespinBox = new QSpinBox(dockWidgetContents_5);
+        pointsizespinBox->setObjectName(QString::fromUtf8("pointsizespinBox"));
+        pointsizespinBox->setMaximum(50);
+        pointsizespinBox->setValue(1);
+
+        horizontalLayout_7->addWidget(pointsizespinBox);
+
+
+        verticalLayout_10->addLayout(horizontalLayout_7);
+
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(6);
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        label_8 = new QLabel(dockWidgetContents_5);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+
+        horizontalLayout_6->addWidget(label_8);
+
+        opacitydoubleSpinBox = new QDoubleSpinBox(dockWidgetContents_5);
+        opacitydoubleSpinBox->setObjectName(QString::fromUtf8("opacitydoubleSpinBox"));
+        opacitydoubleSpinBox->setMaximum(1);
+        opacitydoubleSpinBox->setSingleStep(0.1);
+
+        horizontalLayout_6->addWidget(opacitydoubleSpinBox);
+
+
+        verticalLayout_10->addLayout(horizontalLayout_6);
+
+        propertiesdockWidget->setWidget(dockWidgetContents_5);
+        XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(2), propertiesdockWidget);
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionImport_settings);
@@ -460,6 +547,7 @@ public:
         dockWidget->setWindowTitle(QApplication::translate("XRAY_guiClass", "Project", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("XRAY_guiClass", "Files", 0, QApplication::UnicodeUTF8));
         toolButton->setText(QApplication::translate("XRAY_guiClass", "...", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("XRAY_guiClass", "Pixel size (\316\274m)", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("XRAY_guiClass", "Pre-thresholding", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("XRAY_guiClass", "Gaussian blur (Edge refining)", 0, QApplication::UnicodeUTF8));
         loadVolumePushButton->setText(QApplication::translate("XRAY_guiClass", "Load volumetric data", 0, QApplication::UnicodeUTF8));
@@ -491,6 +579,9 @@ public:
         treeWidget->setSortingEnabled(__sortingEnabled);
 
         dockWidget_5->setWindowTitle(QApplication::translate("XRAY_guiClass", "Info", 0, QApplication::UnicodeUTF8));
+        propertiesdockWidget->setWindowTitle(QApplication::translate("XRAY_guiClass", "Properties", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("XRAY_guiClass", "Point size", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("XRAY_guiClass", "Opacity", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
