@@ -251,7 +251,7 @@ void XRAY_gui::handleLoading()
 	
 	volumes.insert(name,parameters->matrix);
 
-	pointClouds.insert(name,static_cast<void*>(parameters->pointCloud.get()));
+	pointClouds.insert(name,parameters->pointCloud);//static_cast<void*>(parameters->pointCloud.get()));
 
 	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("3D",Qt::MatchContains|Qt::MatchRecursive);
 
@@ -407,7 +407,7 @@ VolumeData * XRAY_gui::getActiveVolume()
 	return NULL;
 }
 
-void * XRAY_gui::getActiveCloud()
+pcl::PointCloud<pcl::PointXYZI>::Ptr XRAY_gui::getActiveCloud()
 {
 	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
 	if(items.size()>0)
@@ -418,7 +418,21 @@ void * XRAY_gui::getActiveCloud()
 		}
 	}
 
-	return NULL;
+	return pcl::PointCloud<pcl::PointXYZI>::Ptr();
+}
+
+std::string XRAY_gui::getActiveCloudName()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(pointClouds[items[0]->text(0)])
+		{
+			return items[0]->text(0).toStdString();
+		}
+	}
+
+	return "";
 }
 
 matVoxel * XRAY_gui::getActiveSkeleton()
@@ -449,6 +463,8 @@ void ThreadLoaderSkeletonWorker::run()
 	{
 		vox->skeletonize(currentData->voxels,currentData->w,currentData->h,currentData->d);
 
+		vox->isolatePoints();
+
 		vox->skeletonToPoints(cloud2, vox->voxels, vox->w, vox->h, vox->d, currentData->pixSize);
 
 		cloud2->width=cloud2->size();
@@ -468,6 +484,9 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 	{
 		this->setEnabled(false);
 
+		ui.qvtkWidget->setEnabled(true);
+		ui.qvtkWidget->setDisabled(false);
+
 		matVoxel *vox=new matVoxel();
 		/*vox.voxels=currentData->voxels;
 		vox.w=currentData->w;
@@ -476,11 +495,11 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 
 		
 
-		pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZI>());
+		pcl::PointCloud<pcl::PointXYZI> * cloud2 = new pcl::PointCloud<pcl::PointXYZI>();
 		
 		QThread * thread=new QThread();
 
-		ThreadLoaderSkeletonWorker * threadworker = new ThreadLoaderSkeletonWorker(vox,cloud2.get(),currentData);
+		ThreadLoaderSkeletonWorker * threadworker = new ThreadLoaderSkeletonWorker(vox,cloud2,currentData);
 
 		threadworker->moveToThread(thread);
 
@@ -503,13 +522,17 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 
 }
 
-void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2,VolumeData * currentData)
+void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData)
 {
 	QString name="Skeleton MA "+QString::number(pointClouds.size());
 
-	addCloud(cloud2,name);
+	imageVolumeLoader::correctCenter(((pcl::PointCloud<pcl::PointXYZI>::Ptr)getActiveCloud()), (float)(currentData->w) / 2*currentData->pixSize, (float)(currentData->h) / 2*currentData->pixSize, (float)(voxel->d) / 2*currentData->pixSize, voxel->cogX*currentData->pixSize, voxel->cogY*currentData->pixSize, voxel->cogZ*currentData->pixSize);
 
-	pointClouds.insert(name,static_cast<void*>(cloud2.get()));
+	pcl::PointCloud<pcl::PointXYZI>::Ptr c_(cloud2);
+
+	addCloud(c_,name);
+
+	pointClouds.insert(name,c_);//static_cast<void*>(cloud2));
 
 	algData.insert(name,voxel);
 
@@ -519,6 +542,8 @@ void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>::Ptr c
 
 	this->setEnabled(true);
 
-	viewer->spin();
+	//viewer->spin();
+	viewer->updatePointCloud(getActiveCloud(),getActiveCloudName());
+	viewer->updateCamera();
 
 }

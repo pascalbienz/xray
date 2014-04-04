@@ -64,7 +64,7 @@ public slots:
 	void run();
 
 private:
-	matVoxel * vox; pcl::PointCloud<pcl::PointXYZI> * cloud2;VolumeData * currentData;
+	matVoxel * vox; pcl::PointCloud<pcl::PointXYZI>* cloud2;VolumeData * currentData;
 
 signals:
 	void getRes(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
@@ -89,7 +89,7 @@ public:
 
 	QHash<QString, VolumeData *> volumes;
 
-	QHash<QString, void *> pointClouds;
+	QHash<QString, pcl::PointCloud<pcl::PointXYZI>::Ptr> pointClouds;
 
 	QHash<QString, matVoxel *> algData;
 
@@ -125,9 +125,10 @@ public	slots: void on_toolButton_clicked();
 	void on_opacitydoubleSpinBox_valueChanged(double i);
 	VolumeData * getActiveVolume();
 	void on_skeletonizepushButton_clicked();
-	void * getActiveCloud();
+	pcl::PointCloud<pcl::PointXYZI>::Ptr getActiveCloud();
 	matVoxel * getActiveSkeleton();
-	void skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2,VolumeData * currentData);
+	void skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
+	std::string getActiveCloudName();
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

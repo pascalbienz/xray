@@ -1774,7 +1774,7 @@ pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCl
 
 }
 
-void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI> * pointCloud, int * voxels, int w, int h, int d, float pixSize)
+void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, int * voxels, int w, int h, int d, float pixSize)
 {
 
 	float centerX = w*pixSize / 2;
@@ -1794,9 +1794,9 @@ void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI> * pointCloud, in
 
 				pcl::PointXYZI basic_point;
 
-				basic_point.x = (float)j*pixSize - cogX;//centerX;
-				basic_point.y = (float)i*pixSize - cogY;//centerY;
-				basic_point.z = (float)v*pixSize - cogZ;//centerZ;
+				basic_point.x = (float)j*pixSize - cogX*pixSize;//centerX;
+				basic_point.y = (float)i*pixSize - cogY*pixSize;//centerY;
+				basic_point.z = (float)v*pixSize - cogZ*pixSize;//centerZ;
 				basic_point.intensity = voxels[j + i*w + v*h*w];
 
 
@@ -1815,9 +1815,9 @@ void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI> * pointCloud, in
 
 		int p = markers_endpoints.at(i);
 
-		basic_point.x = (float)(getX(p))*pixSize - cogX;// centerX;
-		basic_point.y = (float)getY(p)*pixSize - cogY;// centerY;
-		basic_point.z = (float)getZ(p)*pixSize - cogZ;// centerZ;
+		basic_point.x = (float)(getX(p))*pixSize - cogX*pixSize;// centerX;
+		basic_point.y = (float)getY(p)*pixSize - cogY*pixSize;// centerY;
+		basic_point.z = (float)getZ(p)*pixSize - cogZ*pixSize;// centerZ;
 		basic_point.intensity = 255;
 
 
