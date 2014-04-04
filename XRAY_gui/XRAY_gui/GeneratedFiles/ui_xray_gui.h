@@ -108,6 +108,7 @@ public:
     QWidget *dockWidgetContents_7;
     QVBoxLayout *verticalLayout_5;
     QTreeWidget *treeWidget;
+    QPushButton *delpushButton;
     QDockWidget *dockWidget_5;
     QWidget *dockWidgetContents_2;
     QVBoxLayout *verticalLayout_9;
@@ -371,6 +372,8 @@ public:
         gridLayout_2->setContentsMargins(-1, -1, 0, -1);
         spinBox = new QSpinBox(groupBox_3);
         spinBox->setObjectName(QString::fromUtf8("spinBox"));
+        spinBox->setMaximum(1000);
+        spinBox->setValue(100);
 
         gridLayout_2->addWidget(spinBox, 0, 1, 1, 1);
 
@@ -453,6 +456,11 @@ public:
         treeWidget->setHeaderHidden(false);
 
         verticalLayout_5->addWidget(treeWidget);
+
+        delpushButton = new QPushButton(dockWidgetContents_7);
+        delpushButton->setObjectName(QString::fromUtf8("delpushButton"));
+
+        verticalLayout_5->addWidget(delpushButton);
 
         dockWidget_4->setWidget(dockWidgetContents_7);
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget_4);
@@ -585,6 +593,7 @@ public:
         ___qtreewidgetitem5->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
         treeWidget->setSortingEnabled(__sortingEnabled);
 
+        delpushButton->setText(QApplication::translate("XRAY_guiClass", "Delete selection", 0, QApplication::UnicodeUTF8));
         dockWidget_5->setWindowTitle(QApplication::translate("XRAY_guiClass", "Info", 0, QApplication::UnicodeUTF8));
         propertiesdockWidget->setWindowTitle(QApplication::translate("XRAY_guiClass", "Properties", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("XRAY_guiClass", "Point size", 0, QApplication::UnicodeUTF8));

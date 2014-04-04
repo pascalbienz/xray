@@ -1067,7 +1067,7 @@ void matVoxel::isolatePoints()
 	{
 	
 
-	markers_endpoints.resize(2);
+	//markers_endpoints.resize(2);
 
 	findPath();
 
@@ -1818,7 +1818,7 @@ void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, int
 		basic_point.x = (float)(getX(p))*pixSize - cogX*pixSize;// centerX;
 		basic_point.y = (float)getY(p)*pixSize - cogY*pixSize;// centerY;
 		basic_point.z = (float)getZ(p)*pixSize - cogZ*pixSize;// centerZ;
-		basic_point.intensity = 255;
+		basic_point.intensity = (float)i/markers_endpoints.size()*255;//255;
 
 
 		endpoints->points.push_back(basic_point);

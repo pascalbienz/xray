@@ -29,8 +29,7 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 
 	QShortcut * shortcut = new QShortcut(QKeySequence(Qt::Key_Delete),ui.listView);
 	connect(shortcut, SIGNAL(activated()), this, SLOT(deleteItem()));
-	
-	
+
 	listFiles = new QStringListModel();
 
 	ui.listView->setModel(listFiles);
@@ -223,7 +222,7 @@ void XRAY_gui::on_loadVolumePushButton_clicked()
 
 	//imageVolumeLoader::loadDataSet(vec,pointCloud,&(test.voxels),test.w,test.h,test.d,0,11,false,0);
 
-	this->setEnabled(false);
+	enableInterface(false);
 
 	}
 	else
@@ -245,7 +244,7 @@ void XRAY_gui::handleLoading()
 
 	QString name="Volume "+QString::number(volumes.size());
 
-	this->setEnabled(true);
+	enableInterface(true);
 
 	addCloud(parameters->pointCloud, name);
 	
@@ -264,7 +263,8 @@ void XRAY_gui::handleLoading()
 
 	viewer->resetCamera();
 
-	viewer->spin();
+	//viewer->spin();
+	viewer->spinOnce(1,true);
 
 	
 }
@@ -373,7 +373,9 @@ void XRAY_gui::on_pointsizespinBox_valueChanged(int i)
 		if(pointClouds[items[0]->text(0)])
 		{
 			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, ui.pointsizespinBox->value(), items[0]->text(0).toStdString());
-			viewer->spin();
+			//viewer->spin();
+			viewer->updateCamera();
+			viewer->spinOnce(1,true);
 		}
 	}
 }
@@ -388,7 +390,9 @@ void XRAY_gui::on_opacitydoubleSpinBox_valueChanged(double i)
 		if(pointClouds[items[0]->text(0)])
 		{
 			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, ui.opacitydoubleSpinBox->value(), items[0]->text(0).toStdString());
-			viewer->spin();
+			//viewer->spin();
+			viewer->updateCamera();
+			viewer->spinOnce(1,true);
 		}
 	}
 }
@@ -473,7 +477,17 @@ void ThreadLoaderSkeletonWorker::run()
 		emit getRes(vox,cloud2,currentData);
 	}
 
-
+void XRAY_gui::enableInterface(bool v)
+{
+	
+		ui.dockWidget->setEnabled(v);
+		ui.dockWidget_2->setEnabled(v);
+		ui.dockWidget_3->setEnabled(v);
+		ui.dockWidget_4->setEnabled(v);
+		ui.dockWidget_5->setEnabled(v);
+		ui.propertiesdockWidget->setEnabled(v);
+	
+}
 
 void XRAY_gui::on_skeletonizepushButton_clicked()
 {
@@ -482,7 +496,7 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 
 	if(currentData)
 	{
-		this->setEnabled(false);
+		enableInterface(false);
 
 		ui.qvtkWidget->setEnabled(true);
 		ui.qvtkWidget->setDisabled(false);
@@ -540,10 +554,64 @@ void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud
 
 	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
 
-	this->setEnabled(true);
+	if(voxel->endpoints->size()>0)
+	{
+
+	
+	QString name2="End points "+QString::number(pointClouds.size());
+
+	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("points",Qt::MatchContains|Qt::MatchRecursive);
+
+	pointClouds.insert(name2,voxel->endpoints);
+
+	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name2)));
+
+
+	addCloud(voxel->endpoints,name2);
+
+	}
+
+	enableInterface(true);
 
 	//viewer->spin();
-	viewer->updatePointCloud(getActiveCloud(),getActiveCloudName());
+	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> handler(getActiveCloud(), "intensity");
+	viewer->updatePointCloud(getActiveCloud(),handler,getActiveCloudName());
 	viewer->updateCamera();
+	viewer->spinOnce(1,true);
+
+}
+
+void XRAY_gui::on_delpushButton_clicked()
+{
+	
+
+	if(getActiveCloud()!=NULL)
+	{
+		QString dataname=QString::fromStdString(getActiveCloudName());
+		volumes.remove(dataname);
+		viewer->removePointCloud(dataname.toStdString());
+		
+		
+			volumes.remove(dataname);
+			pointClouds.remove(dataname);
+			if(algData[dataname]!=NULL)
+			{
+				delete[] algData[dataname]->voxelTypes;
+				delete algData[dataname];
+			}
+			algData.remove(dataname);
+
+			
+	}
+
+	if(getActiveVolume()!=NULL)
+	{
+		delete[] getActiveVolume()->voxels;
+		
+		delete getActiveVolume();
+	}
+
+	viewer->spinOnce(1,true);
+
 
 }

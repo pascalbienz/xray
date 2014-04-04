@@ -129,6 +129,8 @@ public	slots: void on_toolButton_clicked();
 	matVoxel * getActiveSkeleton();
 	void skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
 	std::string getActiveCloudName();
+	void enableInterface(bool v);
+	void on_delpushButton_clicked();
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;
