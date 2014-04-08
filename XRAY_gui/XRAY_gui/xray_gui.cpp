@@ -9,12 +9,20 @@
 #include <psapi.h>
 #include <qcoreapplication.h>
 #include "bmpConverter.h"
+#include <QMessageBox>
+#include <QScrollBar>
 
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+#include <stdlib.h>
 
 
 XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags)
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	ui.setupUi(this);
 	
 
@@ -254,7 +262,12 @@ void XRAY_gui::handleLoading()
 
 	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("3D",Qt::MatchContains|Qt::MatchRecursive);
 
+	if (item.size() > 0)
+	{
+	
 	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+	}
 
 	//ui.treeWidget->insertTopLevelItem(
 
@@ -336,6 +349,8 @@ void XRAY_gui::secureThreadUpdate(QString data)
 {
 
 	ui.textBrowser->append(data);//+"\r\n");
+
+	ui.textBrowser->verticalScrollBar()->setSliderPosition(ui.textBrowser->verticalScrollBar()->maximum());
 
 }
 
@@ -467,7 +482,7 @@ void ThreadLoaderSkeletonWorker::run()
 	{
 		vox->skeletonize(currentData->voxels,currentData->w,currentData->h,currentData->d);
 
-		vox->isolatePoints();
+		vox->cog();
 
 		vox->skeletonToPoints(cloud2, vox->voxels, vox->w, vox->h, vox->d, currentData->pixSize);
 
@@ -502,6 +517,7 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 		ui.qvtkWidget->setDisabled(false);
 
 		matVoxel *vox=new matVoxel();
+		vox->pixSize=currentData->pixSize;
 		/*vox.voxels=currentData->voxels;
 		vox.w=currentData->w;
 		vox.h=currentData->h;
@@ -554,22 +570,7 @@ void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud
 
 	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
 
-	if(voxel->endpoints->size()>0)
-	{
-
 	
-	QString name2="End points "+QString::number(pointClouds.size());
-
-	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("points",Qt::MatchContains|Qt::MatchRecursive);
-
-	pointClouds.insert(name2,voxel->endpoints);
-
-	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name2)));
-
-
-	addCloud(voxel->endpoints,name2);
-
-	}
 
 	enableInterface(true);
 
@@ -584,34 +585,153 @@ void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud
 void XRAY_gui::on_delpushButton_clicked()
 {
 	
+	QString dataname = QString::fromStdString(getActiveCloudName());
 
-	if(getActiveCloud()!=NULL)
+	if(dataname.compare("")==0)
+		return;
+
+	//if(getActiveCloud()!=NULL||getActiveSkeleton()!=NULL)
 	{
-		QString dataname=QString::fromStdString(getActiveCloudName());
-		volumes.remove(dataname);
+		//QString dataname=QString::fromStdString(getActiveCloudName());
+		//volumes.remove(dataname);
 		viewer->removePointCloud(dataname.toStdString());
 		
-		
-			volumes.remove(dataname);
+			
 			pointClouds.remove(dataname);
-			if(algData[dataname]!=NULL)
-			{
-				delete[] algData[dataname]->voxelTypes;
-				delete algData[dataname];
-			}
-			algData.remove(dataname);
-
+			
 			
 	}
 
 	if(getActiveVolume()!=NULL)
 	{
+		//QString dataname = QString::fromStdString(getActiveCloudName());
+
 		delete[] getActiveVolume()->voxels;
 		
 		delete getActiveVolume();
+
+		volumes.remove(dataname);
+	}
+
+	if(getActiveSkeleton()!=NULL)
+	{
+		if(algData[dataname]!=NULL)
+		{
+			delete[] algData[dataname]->voxelTypes;
+			delete algData[dataname];
+		}
+
+		algData.remove(dataname);
+	}
+
+	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems(dataname, Qt::MatchContains | Qt::MatchRecursive);
+
+	if (item.size() > 0)
+		//ui.treeWidget->takeTopLevelItem(item.at(0)->indexOfChild());//removeItemWidget(item.at(0),0);
+	{
+		delete item.at(0);
 	}
 
 	viewer->spinOnce(1,true);
+
+
+}
+
+
+void XRAY_gui::on_cleanPathpushButton_clicked()
+{
+
+	matVoxel * skeleton_=getActiveSkeleton();
+
+	if(skeleton_!=NULL)
+	{
+
+		skeleton_->isolatePoints();
+
+
+
+		skeleton_->endpoints.reset(new pcl::PointCloud<pcl::PointXYZI>());
+
+		skeleton_->vectorToPointCloud(skeleton_->endpoints,skeleton_->markers_endpoints);
+
+		if(skeleton_->endpoints->size()>0)
+		{
+
+
+			QString name="End points "+QString::number(pointClouds.size());
+
+			QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("points",Qt::MatchContains|Qt::MatchRecursive);
+
+			pointClouds.insert(name,skeleton_->endpoints);
+
+			item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+
+			addCloud(skeleton_->endpoints,name);
+
+		}
+
+
+		if(skeleton_->endpoints->size()>0)
+		{
+
+
+			QString name="Path cloud "+QString::number(pointClouds.size());
+
+			QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("Paths",Qt::MatchContains|Qt::MatchRecursive);
+
+			pointClouds.insert(name,skeleton_->path_cloud);
+
+			item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+			addCloud(skeleton_->path_cloud,name);
+
+		}
+
+		
+		viewer->spinOnce(1,true);
+
+	}
+
+}
+
+
+void XRAY_gui::on_splinepushButton_4_clicked()
+{
+
+	matVoxel * currentSkeleton=getActiveSkeleton();
+
+	if(currentSkeleton!=NULL)
+	{
+
+		/*if(->points.size()>1000000)
+		{
+			QMessageBox::information(this,"Error","Too many points (probably trying to fit a curve to a volume)");
+			return;
+		}*/
+	
+
+
+		currentSkeleton->fitCurve(ui.orderspinBox->value());
+
+	pcl::PolygonMesh::Ptr mesh =currentSkeleton->toPoly(currentSkeleton->nurb);
+
+	QString name="Spline "+QString::number(meshes.size());
+
+	QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("B-Splines",Qt::MatchContains|Qt::MatchRecursive);
+
+	meshes.insert(name,mesh.get());
+
+	item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
+
+
+
+	viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
+
+	viewer->spinOnce(1,true);
+
+
+	}
 
 
 }

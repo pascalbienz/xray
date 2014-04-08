@@ -23,7 +23,7 @@ imageVolumeLoader::~imageVolumeLoader()
 To be used for tests purpose
 
 */
-void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * * voxels, int &w, int &h, int &d, int threshold, float pixSize )
+void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, byte * * voxels, int &w, int &h, int &d, int threshold, float pixSize )
 {
 	path p(path_directory);   // p reads clearer than argv[1] in the following code
 
@@ -57,7 +57,7 @@ void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud
 
 			cv::Mat image = cv::imread(v.at(5).string());
 
-			(*voxels) = new int[image.rows*image.cols*(v.end() - v.begin())];
+			(*voxels) = new byte[image.rows*image.cols*(v.end() - v.begin())];
 
 			w=image.cols;
 			h=image.rows;
@@ -99,7 +99,7 @@ void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud
 		cout << p << "does not exist\n";
 }
 
-void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int * * voxels, int &w, int &h, int &d, int threshold, float pixSize, bool smoothing, int smoothingAmount )
+void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, byte * * voxels, int &w, int &h, int &d, int threshold, float pixSize, bool smoothing, int smoothingAmount )
 {
 
 	if(pathfiles.size()>0)
@@ -109,7 +109,7 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 	cv::Mat image = cv::imread(pathfiles.at(0));
 
-	(*voxels) = new int[image.rows*image.cols*(pathfiles.size())];
+	(*voxels) = new byte[image.rows*image.cols*(pathfiles.size())];
 
 	w=image.cols;
 	h=image.rows;
@@ -156,7 +156,7 @@ void imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr point
 
 
 
-void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, int * voxels, bool smoothing, int smoothingAmount)
+void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, byte * voxels, bool smoothing, int smoothingAmount)
 {
 
 	int width, height;

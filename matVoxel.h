@@ -14,16 +14,20 @@
 #include "Wm5Mathematics.h"
 #include "build/notify.h"
 
+typedef unsigned char byte;
+
 class matVoxel:public notifyClass
 {
 public:
 	matVoxel();
 	~matVoxel();
-	void skeletonize(int * voxels, int w, int h, int d);
+	void skeletonize(byte * voxels, int w, int h, int d);
 	enum VoxelType  { BACKGROUND, OBJECT, EMPTY };
 
 	VoxelType * voxelTypes;
-	int * voxels,w,h,d;
+	byte * voxels;
+	int w,h,d;
+
 	int matchA[27*6], matchB[27*12], matchC[27*8], matchD[27*12];
 	int matVoxel::is26adjacent(int x, int y, int z);
 	int matVoxel::is6adjacent(int x, int y, int z);
@@ -49,10 +53,10 @@ public:
 	void matVoxel::algo();
 	void matVoxel::algo2();
 
-	void matVoxel::fitCurve();
+	void matVoxel::fitCurve(int order);
 
-	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, int * voxels, int w, int h, int d, float pixSize);
-	pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
+	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, byte * voxels, int w, int h, int d, float pixSize);
+	pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 
 
 	pcl::PointCloud<pcl::PointXYZI>::Ptr endpoints;
@@ -75,10 +79,12 @@ public:
 	void matVoxel::pca(cv::Mat image,cv::Point2d &center, cv::Point2d &vec1, cv::Point2d &vec2, double &e1, double &e2, int threshold, std::vector<cv::Point> contour=std::vector<cv::Point>());
 
 	float matVoxel::triLinear(float x, float y, float z);
-
+	void cog();
+	void vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec);
 	bool init;
 
 	int nA,nB,nC,nD;
+	float pixSize;
 
 	//std::vector<double> x_values,y_values;
 	std::vector<std::pair<double,double>> x_values, y_values;

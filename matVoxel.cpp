@@ -630,7 +630,7 @@ void matVoxel::disp(int x_, int y_, int z_)
 Generates templates and run the skeletonization
 
 */
-void matVoxel::skeletonize(int * voxels, int w, int h, int d)
+void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 {
 
 	if (!init)
@@ -782,6 +782,8 @@ void matVoxel::skeletonize(int * voxels, int w, int h, int d)
 void matVoxel::algo2()
 {
 
+	notify_( ((ostringstream&)(ostringstream() << std::endl<< "Beginning skeletonization" )).str());
+
 	std::vector<int> adjacenttobackground;
 		adjacenttobackground.reserve(10000000);
 
@@ -797,14 +799,14 @@ void matVoxel::algo2()
 
 	while (iteration)
 	{
-		notify_( ((ostringstream&)(ostringstream()<< "Phase : " << id++ <<"" )).str());
-		notify_( ((ostringstream&)(ostringstream()<< "Deleted : "<<del_<<"")).str());
+		notify_( ((ostringstream&)(ostringstream()<< "  Phase : " << id++ <<"" )).str());
+		notify_( ((ostringstream&)(ostringstream()<< "  Deleted : "<<del_<<"")).str());
 
 		iteration=false;
 
 		for (int d_ = 0; d_ < 6; d_++)
 		{
-			notify_(((ostringstream&)(ostringstream() << "Direction " << d_ << "")).str());
+			notify_(((ostringstream&)(ostringstream() << "     Direction " << d_ << "")).str());
 
 			for (int z = 1; z < d - 1; z++)
 			{
@@ -999,6 +1001,48 @@ float distCompSq(float u1, float u2, float u3, float v1, float v2, float v3)
 */
 bool sortDist(int i, int j) { return ::distCompSq(getX(i), getY(i), getZ(i), cogX, cogY, cogZ)>::distCompSq(getX(j), getY(j), getZ(j), cogX, cogY, cogZ); }
 
+
+void matVoxel::cog()
+{
+
+
+	cogX=0,cogY=0,cogZ=0;
+
+	float tot=0;
+
+	for (int z = 1; z < d - 1; z++)
+	{
+		for (int x = 1; x < w - 1; x++)
+		{
+			for (int y = 1; y < h - 1; y++)
+			{
+				if (voxels[getAt(x, y, z)]>0)
+				{
+					cogX+=voxels[getAt(x, y, z)]*x;
+					cogY+=voxels[getAt(x, y, z)]*y;
+					cogZ+=voxels[getAt(x, y, z)]*z;
+
+					tot+=voxels[getAt(x, y, z)];
+
+				}
+			}
+		}
+	}
+
+	cogX/=tot;
+	cogY/=tot;
+	cogZ/=tot;
+
+	::w=w;
+	::h=h;
+	::d=d;
+
+	::cogX=cogX;
+	::cogY=cogY;
+	::cogZ=cogZ;
+
+}
+
 /*
 Compute the end / tails points of the spiral, as well as the center of gravity of the spiral
 Order them according to their distance to it.
@@ -1026,40 +1070,7 @@ void matVoxel::isolatePoints()
 		}
 	}
 
-	cogX=0,cogY=0,cogZ=0;
-
-	float tot=0;
-
-	for (int z = 1; z < d - 1; z++)
-	{
-		for (int x = 1; x < w - 1; x++)
-		{
-			for (int y = 1; y < h - 1; y++)
-			{
-				if (voxels[getAt(x, y, z)]>0)
-				{
-					cogX+=voxels[getAt(x, y, z)]*x;
-					cogY+=voxels[getAt(x, y, z)]*y;
-					cogZ+=voxels[getAt(x, y, z)]*z;
-					
-					tot+=voxels[getAt(x, y, z)];
-
-				}
-			}
-		}
-	}
-
-	cogX/=tot;
-	cogY/=tot;
-	cogZ/=tot;
-
-	::w=w;
-	::h=h;
-	::d=d;
-
-	::cogX=cogX;
-	::cogY=cogY;
-	::cogZ=cogZ;
+	
 
 	std::sort(markers_endpoints.begin(),markers_endpoints.end(),::sortDist);
 
@@ -1168,9 +1179,9 @@ void matVoxel::findPath()
 	{
 		pcl::PointXYZI basic_point;
 
-		basic_point.x = (float)(getX(c))*::pixSize - cogX;// centerX;
-		basic_point.y = (float)(getY(c))*::pixSize - cogY;// centerY;
-		basic_point.z = (float)(getZ(c))*::pixSize - cogZ;// centerZ;
+		basic_point.x = (float)(getX(c))*pixSize - cogX*pixSize;// centerX;
+		basic_point.y = (float)(getY(c))*pixSize - cogY*pixSize;// centerY;
+		basic_point.z = (float)(getZ(c))*pixSize - cogZ*pixSize;// centerZ;
 		basic_point.intensity = ::visited[c];//255;
 		c=prev[c];
 
@@ -1186,7 +1197,7 @@ Uses the voxel skeleton to create a B-Spline fitting.
 The order of the spline is unusually high, because of the computation time required to either
 fit a curve using linear-least square fitting, or do a dimensionality reduction
 */
-void matVoxel::fitCurve()
+void matVoxel::fitCurve(int order)
 {
 
 	/*int order=5;
@@ -1223,7 +1234,7 @@ void matVoxel::fitCurve()
 	param.smoothness=0.000001;
 
 
-	int order=100;
+	//int order=100;
 
 	//cur= ON_NurbsCurve::New();//(3,false,order,path_cloud->size());//pcl::on_nurbs::FittingCurve::initNurbsCurvePCA(order,data.interior,path_cloud->size());
 
@@ -1341,12 +1352,12 @@ typedef struct
 *   note:
 *     NO range checking is done in this function.
 */
-float TriCubic(Point p, int *volume, int xDim, int yDim, int zDim)
+float TriCubic(Point p, byte *volume, int xDim, int yDim, int zDim)
 {
 	int             x, y, z;
 	register int    i, j, k;
 	float           dx, dy, dz;
-	register int *pv;
+	register byte *pv;
 	float           u[4], v[4], w[4];
 	float           r[4], q[4];
 	float           vox = 0;
@@ -1740,10 +1751,10 @@ void matVoxel::pca(cv::Mat image, cv::Point2d &center, cv::Point2d &vec1, cv::Po
 
 }
 
-pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud)
+pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud)
 {
 
-	pcl::PolygonMesh mesh;
+	pcl::PolygonMesh::Ptr mesh(new pcl::PolygonMesh());
 
 	pcl::Vertices vert;
 
@@ -1763,9 +1774,9 @@ pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCl
 
 	pcl::toPCLPointCloud2(*pointCloud, cl);
 
-	mesh.cloud = cl;
+	mesh->cloud = cl;
 
-	mesh.polygons.push_back(vert);
+	mesh->polygons.push_back(vert);
 
 	
 
@@ -1774,7 +1785,7 @@ pcl::PolygonMesh matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCl
 
 }
 
-void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, int * voxels, int w, int h, int d, float pixSize)
+void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, byte * voxels, int w, int h, int d, float pixSize)
 {
 
 	float centerX = w*pixSize / 2;
@@ -1807,22 +1818,28 @@ void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, int
 		}
 	}
 
-	endpoints.reset(new pcl::PointCloud<pcl::PointXYZI>());
+	
 
-	for (int i = 0; i < markers_endpoints.size(); i++)
+	cout << "Points tail : " << markers_endpoints.size();
+}
+
+
+void matVoxel::vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec)
+{
+	
+
+	for (int i = 0; i < vec.size(); i++)
 	{
 		pcl::PointXYZI basic_point;
 
-		int p = markers_endpoints.at(i);
+		int p = vec.at(i);
 
 		basic_point.x = (float)(getX(p))*pixSize - cogX*pixSize;// centerX;
 		basic_point.y = (float)getY(p)*pixSize - cogY*pixSize;// centerY;
 		basic_point.z = (float)getZ(p)*pixSize - cogZ*pixSize;// centerZ;
-		basic_point.intensity = (float)i/markers_endpoints.size()*255;//255;
+		basic_point.intensity = (float)i/vec.size()*255;//255;
 
 
-		endpoints->points.push_back(basic_point);
+		pointCloud->points.push_back(basic_point);
 	}
-
-	cout << "Points tail : " << markers_endpoints.size();
 }

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1420</width>
+    <width>1188</width>
     <height>902</height>
    </rect>
   </property>
@@ -102,7 +102,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1420</width>
+     <width>1188</width>
      <height>21</height>
     </rect>
    </property>
@@ -287,6 +287,27 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Thresholding</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="skthresholdspinBox">
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QPushButton" name="skeletonizepushButton">
           <property name="text">
            <string>Skeletonize</string>
@@ -294,16 +315,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_">
+         <widget class="QPushButton" name="cleanPathpushButton">
           <property name="text">
            <string>Clean Skeleton (Pruning)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_6">
-          <property name="text">
-           <string>PushButton</string>
           </property>
          </widget>
         </item>
@@ -322,7 +336,7 @@
            <number>0</number>
           </property>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox">
+           <widget class="QSpinBox" name="orderspinBox">
             <property name="maximum">
              <number>1000</number>
             </property>
@@ -341,7 +355,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="splinepushButton_4">
           <property name="text">
            <string>Create B-Spline</string>
           </property>
@@ -362,7 +376,14 @@
            <number>0</number>
           </property>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox_3"/>
+           <widget class="QSpinBox" name="spinBox_3">
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_3">
@@ -374,7 +395,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="reconstruct_pushButton_5">
           <property name="text">
            <string>Reconstruct path</string>
           </property>

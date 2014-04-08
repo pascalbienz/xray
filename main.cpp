@@ -325,7 +325,7 @@ main(int argc, char** argv)
 
 	//matVoxel test;
 
-	int * voxels;
+	byte * voxels;
 	int w, h, d;
 
 	int threshold=100;
@@ -552,11 +552,11 @@ main(int argc, char** argv)
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud path");
 
 
-		test.fitCurve();
+		test.fitCurve(100);
 
-		pcl::PolygonMesh mesh =test.toPoly(test.nurb);
+		pcl::PolygonMesh::Ptr mesh =test.toPoly(test.nurb);
 
-		viewer->addPolylineFromPolygonMesh(mesh);
+		viewer->addPolylineFromPolygonMesh(*mesh);
 
 
 		

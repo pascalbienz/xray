@@ -89,15 +89,17 @@ public:
     QFormLayout *formLayout;
     QGroupBox *groupBox_2;
     QVBoxLayout *verticalLayout_4;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_6;
+    QSpinBox *skthresholdspinBox;
     QPushButton *skeletonizepushButton;
-    QPushButton *pushButton_;
-    QPushButton *pushButton_6;
+    QPushButton *cleanPathpushButton;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_6;
     QGridLayout *gridLayout_2;
-    QSpinBox *spinBox;
+    QSpinBox *orderspinBox;
     QLabel *label;
-    QPushButton *pushButton_4;
+    QPushButton *splinepushButton_4;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_7;
     QGridLayout *gridLayout_4;
@@ -127,7 +129,7 @@ public:
     {
         if (XRAY_guiClass->objectName().isEmpty())
             XRAY_guiClass->setObjectName(QString::fromUtf8("XRAY_guiClass"));
-        XRAY_guiClass->resize(1420, 902);
+        XRAY_guiClass->resize(1188, 902);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -192,7 +194,7 @@ public:
         XRAY_guiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(XRAY_guiClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1420, 21));
+        menuBar->setGeometry(QRect(0, 0, 1188, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         XRAY_guiClass->setMenuBar(menuBar);
@@ -342,20 +344,33 @@ public:
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        label_6 = new QLabel(groupBox_2);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        horizontalLayout_4->addWidget(label_6);
+
+        skthresholdspinBox = new QSpinBox(groupBox_2);
+        skthresholdspinBox->setObjectName(QString::fromUtf8("skthresholdspinBox"));
+        skthresholdspinBox->setMaximum(255);
+        skthresholdspinBox->setValue(100);
+
+        horizontalLayout_4->addWidget(skthresholdspinBox);
+
+
+        verticalLayout_4->addLayout(horizontalLayout_4);
+
         skeletonizepushButton = new QPushButton(groupBox_2);
         skeletonizepushButton->setObjectName(QString::fromUtf8("skeletonizepushButton"));
 
         verticalLayout_4->addWidget(skeletonizepushButton);
 
-        pushButton_ = new QPushButton(groupBox_2);
-        pushButton_->setObjectName(QString::fromUtf8("pushButton_"));
+        cleanPathpushButton = new QPushButton(groupBox_2);
+        cleanPathpushButton->setObjectName(QString::fromUtf8("cleanPathpushButton"));
 
-        verticalLayout_4->addWidget(pushButton_);
-
-        pushButton_6 = new QPushButton(groupBox_2);
-        pushButton_6->setObjectName(QString::fromUtf8("pushButton_6"));
-
-        verticalLayout_4->addWidget(pushButton_6);
+        verticalLayout_4->addWidget(cleanPathpushButton);
 
 
         formLayout->setWidget(1, QFormLayout::SpanningRole, groupBox_2);
@@ -370,12 +385,12 @@ public:
         gridLayout_2->setSpacing(6);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         gridLayout_2->setContentsMargins(-1, -1, 0, -1);
-        spinBox = new QSpinBox(groupBox_3);
-        spinBox->setObjectName(QString::fromUtf8("spinBox"));
-        spinBox->setMaximum(1000);
-        spinBox->setValue(100);
+        orderspinBox = new QSpinBox(groupBox_3);
+        orderspinBox->setObjectName(QString::fromUtf8("orderspinBox"));
+        orderspinBox->setMaximum(1000);
+        orderspinBox->setValue(100);
 
-        gridLayout_2->addWidget(spinBox, 0, 1, 1, 1);
+        gridLayout_2->addWidget(orderspinBox, 0, 1, 1, 1);
 
         label = new QLabel(groupBox_3);
         label->setObjectName(QString::fromUtf8("label"));
@@ -386,10 +401,10 @@ public:
 
         verticalLayout_6->addLayout(gridLayout_2);
 
-        pushButton_4 = new QPushButton(groupBox_3);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        splinepushButton_4 = new QPushButton(groupBox_3);
+        splinepushButton_4->setObjectName(QString::fromUtf8("splinepushButton_4"));
 
-        verticalLayout_6->addWidget(pushButton_4);
+        verticalLayout_6->addWidget(splinepushButton_4);
 
 
         formLayout->setWidget(2, QFormLayout::SpanningRole, groupBox_3);
@@ -567,12 +582,12 @@ public:
         dockWidget_2->setWindowTitle(QApplication::translate("XRAY_guiClass", "Visualize", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("XRAY_guiClass", "Histogram", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("XRAY_guiClass", "Thresholding", 0, QApplication::UnicodeUTF8));
         skeletonizepushButton->setText(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
-        pushButton_->setText(QApplication::translate("XRAY_guiClass", "Clean Skeleton (Pruning)", 0, QApplication::UnicodeUTF8));
-        pushButton_6->setText(QApplication::translate("XRAY_guiClass", "PushButton", 0, QApplication::UnicodeUTF8));
+        cleanPathpushButton->setText(QApplication::translate("XRAY_guiClass", "Clean Skeleton (Pruning)", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("XRAY_guiClass", "Smoothing", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("XRAY_guiClass", "Order", 0, QApplication::UnicodeUTF8));
-        pushButton_4->setText(QApplication::translate("XRAY_guiClass", "Create B-Spline", 0, QApplication::UnicodeUTF8));
+        splinepushButton_4->setText(QApplication::translate("XRAY_guiClass", "Create B-Spline", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("XRAY_guiClass", "Path correction", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("XRAY_guiClass", "# Subdivisions of cross-section", 0, QApplication::UnicodeUTF8));
         pushButton_5->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));

@@ -29,11 +29,12 @@
 #include <pcl/visualization/pcl_plotter.h>
 #include "build/notify.h"
 
+typedef unsigned char byte;
 
 class VolumeData
 {
 public:
-	int * voxels;
+	byte * voxels;
 	int w,h,d;
 	float pixSize;
 };
@@ -93,6 +94,8 @@ public:
 
 	QHash<QString, matVoxel *> algData;
 
+	QHash<QString, pcl::PolygonMesh *> meshes;
+
 	void showImage(int i);
 
 	void fitImage();
@@ -131,6 +134,8 @@ public	slots: void on_toolButton_clicked();
 	std::string getActiveCloudName();
 	void enableInterface(bool v);
 	void on_delpushButton_clicked();
+	void on_cleanPathpushButton_clicked();
+	void on_splinepushButton_4_clicked();
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;
