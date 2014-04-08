@@ -57,9 +57,7 @@ class ThreadLoaderSkeletonWorker : public QObject
 	Q_OBJECT
 
 public :
-
 	ThreadLoaderSkeletonWorker(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI> * cloud2,VolumeData * currentData);
-
 
 public slots:
 	void run();
@@ -80,44 +78,28 @@ public:
 	~XRAY_gui();
 
 	QPointer<QStringListModel> listFiles;
-
 	QLabel * labelStatus;
 	QProgressBar * progressBarStatus;
-
 	QPixmap image;
-
 	pcl::visualization::PCLVisualizer * viewer; 
 
 	QHash<QString, VolumeData *> volumes;
-
 	QHash<QString, pcl::PointCloud<pcl::PointXYZI>::Ptr> pointClouds;
-
 	QHash<QString, matVoxel *> algData;
-
 	QHash<QString, pcl::PolygonMesh *> meshes;
 
 	void showImage(int i);
-
 	void fitImage();
-
 	void updateNotify(std::string message);
 
 public	slots: void on_toolButton_clicked();
 
 	void on_horizontalSlider_valueChanged();
-
 	void resizeEvent(QResizeEvent *);
-
 	void deleteItem();
-
-
 	void itemcurrentChanged ( const QModelIndex & current);
 	void on_loadVolumePushButton_clicked();
-
-
-	void update();
-
-
+	void updateProcessDisp();
 	void secureThreadUpdate(QString data);
 	QString getFile(int i);
 	void addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QString &name );
@@ -136,6 +118,7 @@ public	slots: void on_toolButton_clicked();
 	void on_delpushButton_clicked();
 	void on_cleanPathpushButton_clicked();
 	void on_splinepushButton_4_clicked();
+
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

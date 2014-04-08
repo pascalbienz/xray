@@ -105,7 +105,7 @@ public:
     QGridLayout *gridLayout_4;
     QSpinBox *spinBox_3;
     QLabel *label_3;
-    QPushButton *pushButton_5;
+    QPushButton *reconstruct_pushButton_5;
     QDockWidget *dockWidget_4;
     QWidget *dockWidgetContents_7;
     QVBoxLayout *verticalLayout_5;
@@ -421,6 +421,8 @@ public:
         gridLayout_4->setContentsMargins(-1, -1, 0, -1);
         spinBox_3 = new QSpinBox(groupBox_4);
         spinBox_3->setObjectName(QString::fromUtf8("spinBox_3"));
+        spinBox_3->setMaximum(1000000);
+        spinBox_3->setValue(1000);
 
         gridLayout_4->addWidget(spinBox_3, 0, 1, 1, 1);
 
@@ -433,10 +435,10 @@ public:
 
         verticalLayout_7->addLayout(gridLayout_4);
 
-        pushButton_5 = new QPushButton(groupBox_4);
-        pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
+        reconstruct_pushButton_5 = new QPushButton(groupBox_4);
+        reconstruct_pushButton_5->setObjectName(QString::fromUtf8("reconstruct_pushButton_5"));
 
-        verticalLayout_7->addWidget(pushButton_5);
+        verticalLayout_7->addWidget(reconstruct_pushButton_5);
 
 
         formLayout->setWidget(3, QFormLayout::SpanningRole, groupBox_4);
@@ -460,11 +462,11 @@ public:
         __qtreewidgetitem->setText(0, QString::fromUtf8("Components"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
         QTreeWidgetItem *__qtreewidgetitem1 = new QTreeWidgetItem(treeWidget);
-        new QTreeWidgetItem(__qtreewidgetitem1);
-        new QTreeWidgetItem(__qtreewidgetitem1);
-        new QTreeWidgetItem(__qtreewidgetitem1);
-        new QTreeWidgetItem(__qtreewidgetitem1);
-        new QTreeWidgetItem(treeWidget);
+        QTreeWidgetItem *__qtreewidgetitem2 = new QTreeWidgetItem(__qtreewidgetitem1);
+        new QTreeWidgetItem(__qtreewidgetitem2);
+        new QTreeWidgetItem(__qtreewidgetitem2);
+        new QTreeWidgetItem(__qtreewidgetitem2);
+        new QTreeWidgetItem(__qtreewidgetitem2);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
         treeWidget->setAutoExpandDelay(-1);
         treeWidget->setAnimated(true);
@@ -590,7 +592,7 @@ public:
         splinepushButton_4->setText(QApplication::translate("XRAY_guiClass", "Create B-Spline", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("XRAY_guiClass", "Path correction", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("XRAY_guiClass", "# Subdivisions of cross-section", 0, QApplication::UnicodeUTF8));
-        pushButton_5->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));
+        reconstruct_pushButton_5->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));
 
         const bool __sortingEnabled = treeWidget->isSortingEnabled();
         treeWidget->setSortingEnabled(false);
@@ -598,13 +600,13 @@ public:
         ___qtreewidgetitem->setText(0, QApplication::translate("XRAY_guiClass", "Vol. data", 0, QApplication::UnicodeUTF8));
         QTreeWidgetItem *___qtreewidgetitem1 = ___qtreewidgetitem->child(0);
         ___qtreewidgetitem1->setText(0, QApplication::translate("XRAY_guiClass", "3D", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem2 = ___qtreewidgetitem->child(1);
-        ___qtreewidgetitem2->setText(0, QApplication::translate("XRAY_guiClass", "Paths", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem3 = ___qtreewidgetitem->child(2);
-        ___qtreewidgetitem3->setText(0, QApplication::translate("XRAY_guiClass", "Skeletons", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem4 = ___qtreewidgetitem->child(3);
+        QTreeWidgetItem *___qtreewidgetitem2 = ___qtreewidgetitem1->child(0);
+        ___qtreewidgetitem2->setText(0, QApplication::translate("XRAY_guiClass", "Skeletons", 0, QApplication::UnicodeUTF8));
+        QTreeWidgetItem *___qtreewidgetitem3 = ___qtreewidgetitem1->child(1);
+        ___qtreewidgetitem3->setText(0, QApplication::translate("XRAY_guiClass", "Paths", 0, QApplication::UnicodeUTF8));
+        QTreeWidgetItem *___qtreewidgetitem4 = ___qtreewidgetitem1->child(2);
         ___qtreewidgetitem4->setText(0, QApplication::translate("XRAY_guiClass", "Points", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem5 = treeWidget->topLevelItem(1);
+        QTreeWidgetItem *___qtreewidgetitem5 = ___qtreewidgetitem1->child(3);
         ___qtreewidgetitem5->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
         treeWidget->setSortingEnabled(__sortingEnabled);
 

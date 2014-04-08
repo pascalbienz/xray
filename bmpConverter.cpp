@@ -190,6 +190,7 @@ void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl
 	int kernel_size = 3;
 
 
+	#pragma omp parallel for
 	for (int i = 0; i < image.rows; i++)
 	{
 		p = image.ptr<uchar>(i);
@@ -209,6 +210,7 @@ void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl
 
 				voxels[j/channels+i*image.cols]=p[j];
 
+				#pragma omp critical
 				pointCloud->points.push_back(basic_point);
 			}
 			else

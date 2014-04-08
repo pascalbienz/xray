@@ -443,27 +443,27 @@
          <property name="text">
           <string>3D</string>
          </property>
+         <item>
+          <property name="text">
+           <string>Skeletons</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Paths</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Points</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>B-Splines</string>
+          </property>
+         </item>
         </item>
-        <item>
-         <property name="text">
-          <string>Paths</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Skeletons</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Points</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>B-Splines</string>
-        </property>
        </item>
       </widget>
      </item>

@@ -277,12 +277,29 @@ int list6Neighbor[] =
 #define idY(i) (- 1 + ((i) % 9)/3)
 #define idZ(i) (- 1 + (i) / 9)
 
-std::vector<int> list(30);
-int listF[30];
-int startList=0;
-int nextList=0;
+struct tmp
+{
 
-bool check[27] = { false };
+std::vector<int> list;//(30);
+int listF[30];
+//int startList;//=0;
+//int nextList;//=0;
+
+bool check[27];// = { false };
+
+tmp()
+{
+	list.reserve(30);
+	//startList=0;
+	for(int i=0;i<27;i++)
+		check[i]=0;
+	for(int i=0;i<30;i++)
+		listF[i]=0;
+}
+
+};
+
+tmp tmpContainers[20]; // max num thread
 
 /*
 Returns if the voxel is a tail or end-point. X-----
@@ -291,7 +308,7 @@ bool matVoxel::isTail(int x, int y, int z)
 {
 	int nObj = 0;
 	
-	
+	tmp * opt =&tmpContainers[omp_get_thread_num()];
 
 	for (int i = 0; i < 27; i++)
 	{
@@ -300,10 +317,10 @@ bool matVoxel::isTail(int x, int y, int z)
 		if (voxelTypes[getAt(x + idX(i), y + idY(i), z + idZ(i))] == OBJECT)
 		{
 			nObj++;
-			::check[i]=true;
+			opt->check[i]=true;
 		}
 		else
-			::check[i]=false;
+			opt->check[i]=false;
 	}
 
 	return (nObj == 1);// || (nObj == 2 && ((::check[10] && ::check[14]) ^ (::check[10] && ::check[22]) ||
@@ -318,6 +335,8 @@ directions for every 26 voxels. (Would allow for around 4 times speed up)
 */
 bool matVoxel::topConnect26(int x, int y, int z)
 {
+
+	tmp * opt =&tmpContainers[omp_get_thread_num()];
 
 	/*for (int i = 0; i < 27; i++)
 	{
@@ -335,6 +354,9 @@ bool matVoxel::topConnect26(int x, int y, int z)
 
 	int nObj = 0;
 	int checkPos = 0;
+
+	int startList=0;
+	int nextList=0;
 
 	/*for (int i = 0; i < 6; i++)
 	{
@@ -368,7 +390,7 @@ bool matVoxel::topConnect26(int x, int y, int z)
 		//::list.clear();
 		//::list.push_back(checkPos);
 		startList=0;
-		::listF[startList] = checkPos;
+		opt->listF[startList] = checkPos;
 		nextList=1;
 
 
@@ -376,14 +398,14 @@ bool matVoxel::topConnect26(int x, int y, int z)
 		//bool check[27] = { false };
 
 		for (int i = 0; i < 27; i++)
-			::check[i] = false;
+			opt->check[i] = false;
 
 		int c = 0;
 		int nb = 1;
 		while (nextList!=startList)//::list.size() > 0)
 		{
-			c = ::listF[startList];//::list.at(0);//back();
-			::check[c] = true;
+			c = opt->listF[startList];//::list.at(0);//back();
+			opt->check[c] = true;
 			//::list.erase(::list.begin());//pop_back();
 			startList++;
 			for (int i = 0; i < 27; i++)
@@ -393,12 +415,12 @@ bool matVoxel::topConnect26(int x, int y, int z)
 				int _z = idZ(c) + idZ(i);
 				if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0))
 					continue;
-				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == OBJECT&&!::check[convertBlockDev27(_x, _y, _z)])
+				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == OBJECT&&!opt->check[convertBlockDev27(_x, _y, _z)])
 				{
-					::check[convertBlockDev27(_x, _y, _z)] = true;
+					opt->check[convertBlockDev27(_x, _y, _z)] = true;
 					nb++;
 					//::list.push_back(convertBlockDev27(_x, _y, _z));
-					::listF[nextList] = convertBlockDev27(_x, _y, _z);
+					opt->listF[nextList] = convertBlockDev27(_x, _y, _z);
 					nextList++;
 				}
 			}
@@ -425,7 +447,7 @@ Checking connectivity of 6-adjacent background neighbours within the set of 18-a
 bool matVoxel::topConnect6(int x, int y, int z)
 {
 
-
+	//int threadID=omp_get_thread_num();	//tmp * opt =&tmpContainers[omp_get_thread_num()];
 
 
 	int nBack = 0;
@@ -448,16 +470,21 @@ bool matVoxel::topConnect6(int x, int y, int z)
 	}
 	else
 	{
+		int tID=omp_get_thread_num();
+		tmp * opt =&tmpContainers[omp_get_thread_num()];
+
+		//OutputDebugString((boost::lexical_cast<std::string>(tID)+"\n").c_str());
+
 		for (int i = 0; i < 27; i++)
-			::check[i] = false;
+			opt->check[i] = false;
 
 		//::list.clear();
 		//::list.push_back(checkPos);
 
 
-		startList = 0;
-		::listF[startList] = checkPos;
-		nextList = 1;
+		int startList = 0;
+		opt->listF[startList] = checkPos;
+		int nextList = 1;
 
 		//for (int i = 0;i<)
 		
@@ -469,8 +496,8 @@ bool matVoxel::topConnect6(int x, int y, int z)
 			::check[c] = true;
 			::list.erase(::list.begin());//pop_back();*/
 
-			c = ::listF[startList];//::list.at(0);//back();
-			::check[c] = true;
+			c = opt->listF[startList];//::list.at(0);//back();
+			opt->check[c] = true;
 			//::list.erase(::list.begin());//pop_back();
 			startList++;
 
@@ -482,14 +509,14 @@ bool matVoxel::topConnect6(int x, int y, int z)
 				if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || (abs(_x) + abs(_y) + abs(_z)>2))
 					continue;
 				int n = convertBlockDev27(_x, _y, _z);
-				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == BACKGROUND&&!::check[n])
+				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == BACKGROUND&&!opt->check[n])
 				{
-					::check[n] = true;
+					opt->check[n] = true;
 					if (n == 4 || n == 10 || n == 12 || n == 14 || n == 16 || n == 22)
 						nb++;
 					//::list.push_back(convertBlockDev27(_x, _y, _z));
 
-					::listF[nextList] = convertBlockDev27(_x, _y, _z);
+					opt->listF[nextList] = convertBlockDev27(_x, _y, _z);
 					nextList++;
 				}
 			}
@@ -633,6 +660,8 @@ Generates templates and run the skeletonization
 void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 {
 
+	assert(voxels!=NULL);
+
 	if (!init)
 	{
 
@@ -774,20 +803,29 @@ void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 
 	//algo();
 
+	//omp_set_num_threads(4);
+
+	DWORD start=GetTickCount();
+
 	algo2();
+
+	OutputDebugString((boost::lexical_cast<string>((GetTickCount()-start))+"\n").c_str());
 
 }
 
 
 void matVoxel::algo2()
 {
+	omp_set_nested(1);
 
 	notify_( ((ostringstream&)(ostringstream() << std::endl<< "Beginning skeletonization" )).str());
 
 	std::vector<int> adjacenttobackground;
 		adjacenttobackground.reserve(10000000);
 
-	std::vector<int> markers;markers.reserve(10000000);
+	//std::vector<int> markers;markers.reserve(10000000);
+	int * markers = new int[10000000]; // max num of points to be simultaneously removed
+	int nbMarkers=0;
 
 	//std::vector<int> voxels_correct(10000000);
 
@@ -804,40 +842,70 @@ void matVoxel::algo2()
 
 		iteration=false;
 
+		DWORD start=GetTickCount();
+
 		for (int d_ = 0; d_ < 6; d_++)
 		{
 			notify_(((ostringstream&)(ostringstream() << "     Direction " << d_ << "")).str());
+			//OutputDebugString((boost::lexical_cast<string>(omp_get_num_threads())+"\n").c_str());
+			//#pragma omp parallel
+			{
+			
+				// schedule(dynamic,1)
+			
+			omp_set_num_threads(4);
 
+			#pragma omp parallel for shared(nbMarkers) schedule(static,1)
 			for (int z = 1; z < d - 1; z++)
 			{
+				//if(z==1)
+				//OutputDebugString((boost::lexical_cast<string>(omp_get_num_threads())+"\n").c_str());
+				//#pragma omp for nowait
 				for (int x = 1; x < w - 1; x++)
 				{
+					//#pragma omp for nowait
 					for (int y = 1; y < h - 1; y++)
 					{
 						if (voxelTypes[getAt(x, y, z)] == OBJECT&&isBorder(x, y, z, d_)&&simplePoint(x,y,z)&&!isTail(x,y,z))
 						{
-
-							markers.push_back(getAt(x, y, z));
+							//notify_(boost::lexical_cast<string>(omp_get_thread_num())+"\n");
+							//#pragma omp critical
+							//markers.push_back(getAt(x, y, z));
+							#pragma omp critical
+							{
+							markers[nbMarkers]=getAt(x,y,z);
+							nbMarkers++;
+							}
 
 						}
 					}
 				}
 			}
 
+			}
+			//OutputDebugString((boost::lexical_cast<string>(omp_get_num_threads())+"\n").c_str());
 			//random_shuffle(markers.begin(), markers.end());
+			OutputDebugString((boost::lexical_cast<string>((GetTickCount()-start))+"\n").c_str());
+
+			start=GetTickCount();
 
 			bool cont=true;
+
+			int nbIter=0;
 
 			while (cont)
 			{
 				cont=false;
-				
-				for (int i = 0; i < markers.size(); i++)
+				nbIter++;
+
+				//OutputDebugString((boost::lexical_cast<string>(nbIter)+"\n").c_str());
+
+				for (int i = 0; i < nbMarkers;i++)//markers.size(); i++)
 				{
 
-					int x = getX(markers.at(i));
-					int y = getY(markers.at(i));
-					int z = getZ(markers.at(i));
+					int x = getX(markers[i]);
+					int y = getY(markers[i]);
+					int z = getZ(markers[i]);
 
 
 					if (voxelTypes[getAt(x, y, z)]==OBJECT&&simplePoint(x, y, z))//&&!isTail(x,y,z))
@@ -859,13 +927,17 @@ void matVoxel::algo2()
 			}
 
 			adjacenttobackground.clear();
-			markers.clear();
+			//markers.clear();
 
+			nbMarkers=0;
 
+			OutputDebugString(("-"+boost::lexical_cast<string>((GetTickCount()-start))+"\n").c_str());
 		}
 
 	}
 
+
+	delete [] markers;
 	
 }
 
@@ -1047,12 +1119,8 @@ void matVoxel::cog()
 Compute the end / tails points of the spiral, as well as the center of gravity of the spiral
 Order them according to their distance to it.
 */
-void matVoxel::isolatePoints()
+void matVoxel::isolatePoints(std::vector<int> &markers_endpoints)
 {
-
-
-
-	
 
 	for (int z = 1; z < d - 1; z++)
 	{
@@ -1071,10 +1139,9 @@ void matVoxel::isolatePoints()
 	}
 
 	
-
 	std::sort(markers_endpoints.begin(),markers_endpoints.end(),::sortDist);
 
-	if (markers_endpoints.size() > 0)
+	/*if (markers_endpoints.size() > 0)
 	{
 	
 
@@ -1082,14 +1149,14 @@ void matVoxel::isolatePoints()
 
 	findPath();
 
-	}
+	}*/
 
 }
 
 
 
 
-float pixSize=11.80303;//11.8;
+//float pixSize=11.80303;//11.8;
 
 //int * visited;
 std::map<int, int> visited;
@@ -1108,7 +1175,7 @@ end points or tail points that are incorrect. The idea is to compute the longest
 from the end of the spiral. This is retrieved for now by computing the furthest endpoint of the spiral to the center.
 That should correspond to it, while a more robust approach has to be found. (It could be possible to have a branch)
 */
-void matVoxel::findPath()
+void matVoxel::findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud)
 {
 
 	std::vector<int> p;
@@ -1116,7 +1183,7 @@ void matVoxel::findPath()
 	std::priority_queue<int,vector<int>, CompareDistance> list;
 
 	
-	list.push(markers_endpoints[0]);
+	list.push(startIndex);//markers_endpoints[0]);
 	
 
 	//::visited=new int[w*h*d];
@@ -1173,7 +1240,7 @@ void matVoxel::findPath()
 
 	}
 
-	path_cloud.reset(new pcl::PointCloud<pcl::PointXYZI>());
+	//path_cloud.reset(new pcl::PointCloud<pcl::PointXYZI>());
 
 	while (prev[c] != -1)
 	{
@@ -1197,7 +1264,7 @@ Uses the voxel skeleton to create a B-Spline fitting.
 The order of the spline is unusually high, because of the computation time required to either
 fit a curve using linear-least square fitting, or do a dimensionality reduction
 */
-void matVoxel::fitCurve(int order)
+void matVoxel::fitCurve(int order, pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud, pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb,Wm5::BSplineCurve3d * cur)
 {
 
 	/*int order=5;
@@ -1422,17 +1489,17 @@ float TriCubic(Point p, byte *volume, int xDim, int yDim, int zDim)
 
 
 
-void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer, string path)
+void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer, string path,pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values)
 {
 	/* ax + by + cz + d = 0*/
 
-	center_line.reset(new pcl::PointCloud<pcl::PointXYZRGB>());
+	//center_line.reset(new pcl::PointCloud<pcl::PointXYZRGB>());
 
 	float a, b, c,u;
 
 	float length=200;
 
-	int nbSampling=path_cloud->size()/10;	
+	//int nbSampling=path_cloud->size()/10;	
 
 	float angle=0;
 
@@ -1671,7 +1738,7 @@ void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer
 	//for (int y = 0; y < length; y++);
 }
 
-void matVoxel::projectBack()
+void matVoxel::projectBack(Wm5::BSplineCurve3d * cur)
 {
 	Wm5::Vector3d tan;
 	Wm5::Vector3d point;
@@ -1785,12 +1852,12 @@ pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr po
 
 }
 
-void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, byte * voxels, int w, int h, int d, float pixSize)
+void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud)
 {
 
-	float centerX = w*pixSize / 2;
+	/*float centerX = w*pixSize / 2;
 	float centerY = h*pixSize / 2;
-	float centerZ = d*pixSize / 2;
+	float centerZ = d*pixSize / 2;*/
 
 	for (int v = 0; v < d; v++)
 	for (int i = 0; i < h; i++)
@@ -1820,7 +1887,7 @@ void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, byt
 
 	
 
-	cout << "Points tail : " << markers_endpoints.size();
+//	cout << "Points tail : " << markers_endpoints.size();
 }
 
 

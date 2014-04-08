@@ -46,7 +46,7 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 
 
 	QTimer *timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	connect(timer, SIGNAL(timeout()), this, SLOT(updateProcessDisp()));
 	timer->start(1000);
 
 
@@ -83,21 +83,15 @@ void XRAY_gui::on_toolButton_clicked()
 	dirFilter.filter();
 
 	
-
 	listFiles->setStringList(dirFilter.entryList());
 	//ui.listView->addItems(dirFilter.entryList());
 	//ui.listView->setModel(listFiles);
 
 	ui.lineEdit->setText(dirFilter.absolutePath());
 
-	
 	ui.horizontalSlider->setMaximum(listFiles->rowCount()-1);
 
-
 	showImage(listFiles->rowCount()/2);
-
-	
-
 
 }
 
@@ -180,7 +174,7 @@ QString XRAY_gui::getFile(int i)
 	return ui.lineEdit->text()+"/"+listFiles->stringList().at(i);
 }
 
-class ThreadLoader : public QThread
+/*class ThreadLoader : public QThread
 {
 	Q_OBJECT
 
@@ -192,7 +186,7 @@ protected:
 
 signals:
 	void finished();
-};
+};*/
 
 
 
@@ -292,7 +286,7 @@ void XRAY_gui::addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QStrin
 }
 
 
-void XRAY_gui::update()
+void XRAY_gui::updateProcessDisp()
 {
 
 
@@ -484,7 +478,7 @@ void ThreadLoaderSkeletonWorker::run()
 
 		vox->cog();
 
-		vox->skeletonToPoints(cloud2, vox->voxels, vox->w, vox->h, vox->d, currentData->pixSize);
+		vox->skeletonToPoints(cloud2);
 
 		cloud2->width=cloud2->size();
 		cloud2->height=1;
@@ -646,15 +640,15 @@ void XRAY_gui::on_cleanPathpushButton_clicked()
 	if(skeleton_!=NULL)
 	{
 
-		skeleton_->isolatePoints();
+		std::vector<int> endpoints_indices;
 
+		skeleton_->isolatePoints(endpoints_indices);
 
+		pcl::PointCloud<pcl::PointXYZI>::Ptr endpointsPointCloud(new pcl::PointCloud<pcl::PointXYZI>());
 
-		skeleton_->endpoints.reset(new pcl::PointCloud<pcl::PointXYZI>());
+		skeleton_->vectorToPointCloud(endpointsPointCloud,endpoints_indices);
 
-		skeleton_->vectorToPointCloud(skeleton_->endpoints,skeleton_->markers_endpoints);
-
-		if(skeleton_->endpoints->size()>0)
+		if(endpointsPointCloud->size()>0)
 		{
 
 
@@ -662,29 +656,32 @@ void XRAY_gui::on_cleanPathpushButton_clicked()
 
 			QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("points",Qt::MatchContains|Qt::MatchRecursive);
 
-			pointClouds.insert(name,skeleton_->endpoints);
+			pointClouds.insert(name,endpointsPointCloud);
 
 			item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
 
 
-			addCloud(skeleton_->endpoints,name);
+			addCloud(endpointsPointCloud,name);
 
 		}
 
 
-		if(skeleton_->endpoints->size()>0)
+		if(endpointsPointCloud->size()>0)
 		{
 
+			pcl::PointCloud<pcl::PointXYZI>::Ptr longestShortestPathCloud(new pcl::PointCloud<pcl::PointXYZI>());
+
+			skeleton_->findPath(endpoints_indices.at(0),longestShortestPathCloud);
 
 			QString name="Path cloud "+QString::number(pointClouds.size());
 
 			QList<QTreeWidgetItem*> item = ui.treeWidget->findItems("Paths",Qt::MatchContains|Qt::MatchRecursive);
 
-			pointClouds.insert(name,skeleton_->path_cloud);
+			pointClouds.insert(name,longestShortestPathCloud);
 
 			item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));
 
-			addCloud(skeleton_->path_cloud,name);
+			addCloud(longestShortestPathCloud,name);
 
 		}
 
@@ -709,10 +706,10 @@ void XRAY_gui::on_splinepushButton_4_clicked()
 			QMessageBox::information(this,"Error","Too many points (probably trying to fit a curve to a volume)");
 			return;
 		}*/
-	
+	/*
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurbPoints(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-
-		currentSkeleton->fitCurve(ui.orderspinBox->value());
+		currentSkeleton->fitCurve(ui.orderspinBox->value(),path_clo);
 
 	pcl::PolygonMesh::Ptr mesh =currentSkeleton->toPoly(currentSkeleton->nurb);
 
@@ -728,7 +725,7 @@ void XRAY_gui::on_splinepushButton_4_clicked()
 
 	viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
 
-	viewer->spinOnce(1,true);
+	viewer->spinOnce(1,true);*/
 
 
 	}

@@ -505,15 +505,23 @@ main(int argc, char** argv)
 	{
 		//matVoxel transform();
 
+		test.pixSize=pixSize;
+
 		::test.skeletonize(voxels, w, h, d);
 
-		::test.isolatePoints();
+		std::vector<int> markers_endpoints;
+
+		::test.isolatePoints(markers_endpoints);
+
+		pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud(new pcl::PointCloud<pcl::PointXYZI>);
+
+		::test.findPath(markers_endpoints.at(0),path_cloud);
 
 		pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZI>);
 
 		float pixSize=11.80303;//11.8;
 
-		test.skeletonToPoints(cloud2.get(), voxels, w, h, d, 11.8);
+		test.skeletonToPoints(cloud2.get());
 
 		imageVolumeLoader::correctCenter(cloud, (float)w / 2*pixSize, (float)h / 2*pixSize, (float)d / 2*pixSize, test.cogX*pixSize, test.cogY*pixSize, test.cogZ*pixSize);
 
@@ -535,43 +543,51 @@ main(int argc, char** argv)
 
 		pcl::io::savePCDFileASCII(path+"/spiral.PCD", *cloud2);
 
-		if (test.endpoints->size()>0)
+		if (markers_endpoints.size()>0)
 		{
 		
+			pcl::PointCloud<pcl::PointXYZI>::Ptr endpoints(new pcl::PointCloud<pcl::PointXYZI>());
 
-		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> single_color(test.endpoints, 0, 255, 0);
-		viewer->addPointCloud<pcl::PointXYZI>(test.endpoints, single_color, "cloud endpoints");
+		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> single_color(endpoints, 0, 255, 0);
+		viewer->addPointCloud<pcl::PointXYZI>(endpoints, single_color, "cloud endpoints");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "cloud endpoints");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud endpoints");
 
 
 		//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> single_color2(test.path_cloud, 255, 0, 0);
-		pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> single_color2(test.path_cloud, "intensity");
-		viewer->addPointCloud<pcl::PointXYZI>(test.path_cloud, single_color2, "cloud path");
+		pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> single_color2(path_cloud, "intensity");
+		viewer->addPointCloud<pcl::PointXYZI>(path_cloud, single_color2, "cloud path");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "cloud path");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud path");
 
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-		test.fitCurve(100);
+		Wm5::BSplineCurve3d * cur;
 
-		pcl::PolygonMesh::Ptr mesh =test.toPoly(test.nurb);
+		test.fitCurve(100,path_cloud,nurb,cur);
+
+		pcl::PolygonMesh::Ptr mesh =test.toPoly(nurb);
 
 		viewer->addPolylineFromPolygonMesh(*mesh);
 
 
-		
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-		test.plans(viewer,path);
+
+		std::vector<std::pair<double,double>> y_values;
+
+
+		test.plans(viewer,path,center_line,path_cloud->size()/10,cur,y_values);
 
 		//viewer->addPolylineFromPolygonMesh(test.toPoly(test.center_line),"center_line");
 
-		viewer->addPointCloud<pcl::PointXYZRGB>(test.center_line, "cloud center line");
+		viewer->addPointCloud<pcl::PointXYZRGB>(center_line, "cloud center line");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "cloud center line");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud center line");
 
 
 		pcl::visualization::PCLPlotter * plot=new pcl::visualization::PCLPlotter();
-		plot->addPlotData(test.y_values);//addHistogramData(test.y_values);
+		plot->addPlotData(y_values);//addHistogramData(test.y_values);
 		plot->setWindowSize(900, 600);
 		plot->setYTitle("this is my own function");
 		plot->plot();
@@ -614,8 +630,8 @@ void pickPoint(const pcl::visualization::PointPickingEvent& pick)
 
 	pick.getPoint(x,y,z);
 
-	if (point>=0&&point<test.path_cloud->size())
-	cout << x << " - " << " - " << y << " - " << z << " " << ::test.path_cloud->points[point].intensity<<endl;
+	/*if (point>=0&&point<path_cloud->size())
+	cout << x << " - " << " - " << y << " - " << z << " " << ::test.path_cloud->points[point].intensity<<endl;*/
 }
 
 

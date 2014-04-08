@@ -27,6 +27,9 @@ public:
 	VoxelType * voxelTypes;
 	byte * voxels;
 	int w,h,d;
+	float cogX, cogY, cogZ;
+	int nA,nB,nC,nD;
+	float pixSize;
 
 	int matchA[27*6], matchB[27*12], matchC[27*8], matchD[27*12];
 	int matVoxel::is26adjacent(int x, int y, int z);
@@ -44,22 +47,23 @@ public:
 	bool matVoxel::isTail(int x, int y, int z);
 	int matVoxel::isBorder(int x, int y, int z, int direction);
 
-	float cogX, cogY, cogZ;
 	bool sortDist(int i, int j);
 
-	void matVoxel::isolatePoints();
-	void matVoxel::findPath();
-
+	//void matVoxel::isolatePoints();
+	void isolatePoints(std::vector<int> &markers_endpoints);
+	//void matVoxel::findPath();
+	void findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud);
 	void matVoxel::algo();
 	void matVoxel::algo2();
 
-	void matVoxel::fitCurve(int order);
+	//void matVoxel::fitCurve(int order);
+	
+	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud);//, byte * voxels, int w, int h, int d, float pixSize);
+	void vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec);
+	
 
-	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud, byte * voxels, int w, int h, int d, float pixSize);
-	pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 
-
-	pcl::PointCloud<pcl::PointXYZI>::Ptr endpoints;
+	/*pcl::PointCloud<pcl::PointXYZI>::Ptr endpoints;
 	std::vector<int> markers_endpoints;
 
 	pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud;
@@ -70,23 +74,26 @@ public:
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line;
 
 	//ON_NurbsCurve* cur;
-	Wm5::BSplineCurve3d *cur;
+	Wm5::BSplineCurve3d *cur;*/
 
-	void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::string path);
-	void matVoxel::projectBack();
+	void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer, string path,pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values);
+	void matVoxel::projectBack(Wm5::BSplineCurve3d * cur);
 
 
 	void matVoxel::pca(cv::Mat image,cv::Point2d &center, cv::Point2d &vec1, cv::Point2d &vec2, double &e1, double &e2, int threshold, std::vector<cv::Point> contour=std::vector<cv::Point>());
 
 	float matVoxel::triLinear(float x, float y, float z);
 	void cog();
-	void vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec);
+
+
+	static void fitCurve(int order, pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud, pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb,Wm5::BSplineCurve3d * cur);
+	static pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
+	
 	bool init;
 
-	int nA,nB,nC,nD;
-	float pixSize;
+	
 
 	//std::vector<double> x_values,y_values;
-	std::vector<std::pair<double,double>> x_values, y_values;
+	//std::vector<std::pair<double,double>> x_values, y_values;
 };
 
