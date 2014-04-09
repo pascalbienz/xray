@@ -22,11 +22,22 @@ public:
 	matVoxel();
 	~matVoxel();
 	void skeletonize(byte * voxels, int w, int h, int d);
-	enum VoxelType  { BACKGROUND, OBJECT, EMPTY };
+	//enum VoxelType  { BACKGROUND, OBJECT, EMPTY };
+	class VoxelType
+	{
+	public:
+	static byte const BACKGROUND=0;
+	static byte const OBJECT=1;
+	static byte const EMPTY=2;
+	};
 
-	VoxelType * voxelTypes;
+	static byte const BACKGROUND=0;
+	static byte const OBJECT=1;
+	static byte const EMPTY=2;
+
+	byte * voxelTypes;
 	byte * voxels;
-	int w,h,d;
+	long long int w,h,d;
 	float cogX, cogY, cogZ;
 	int nA,nB,nC,nD;
 	float pixSize;

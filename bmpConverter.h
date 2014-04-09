@@ -27,7 +27,7 @@ public:
 	static void processImage(std::string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud,int threshold,byte * voxels=NULL, bool smoothing=false, int smoothingAmount=0);
 	
 	static void imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, float centerX, float centerY, float centerZ, float cogX, float cogY, float cogZ);
-
+static	void cog(byte * voxels, int&w, int &h, int &d, float &cogX, float &cogY, float &cogZ);
 	//static bool smoothing;
 	//static int smoothingInt;
 

@@ -109,7 +109,7 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 	cv::Mat image = cv::imread(pathfiles.at(0));
 
-	(*voxels) = new byte[image.rows*image.cols*(pathfiles.size())];
+	(*voxels) = (byte*)malloc(sizeof(byte)*image.rows*image.cols*(pathfiles.size()));//new byte[image.rows*image.cols*(pathfiles.size())];
 
 	w=image.cols;
 	h=image.rows;
@@ -119,7 +119,7 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 	float z = -(float)d/2*pixSize;
 
-	int count = 0;
+	long long int count = 0;
 
 	for (int it=0; it < pathfiles.size(); ++it)
 	{
@@ -138,6 +138,41 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 
 	
+
+}
+
+#define getAt(x,y,z) (x)+(y)*w+(z)*w*h
+
+void imageVolumeLoader::cog(byte * voxels, int&w, int &h, int &d, float &cogX, float &cogY, float &cogZ)
+{
+
+
+	cogX=0,cogY=0,cogZ=0;
+
+	float tot=0;
+
+	for (int z = 1; z < d - 1; z++)
+	{
+		for (int x = 1; x < w - 1; x++)
+		{
+			for (int y = 1; y < h - 1; y++)
+			{
+				if (voxels[getAt(x, y, z)]>0)
+				{
+					cogX+=voxels[getAt(x, y, z)]*x;
+					cogY+=voxels[getAt(x, y, z)]*y;
+					cogZ+=voxels[getAt(x, y, z)]*z;
+
+					tot+=voxels[getAt(x, y, z)];
+
+				}
+			}
+		}
+	}
+
+	cogX/=tot;
+	cogY/=tot;
+	cogZ/=tot;
 
 }
 
@@ -170,7 +205,7 @@ void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl
 
 	float centerX=image.cols*pixSize/2, centerY=image.rows*pixSize/2;
 
-	uchar*p;
+	//uchar*p;
 
 	//Canny(image, image, 20, 20*3, 3);
 
@@ -193,7 +228,7 @@ void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl
 	#pragma omp parallel for
 	for (int i = 0; i < image.rows; i++)
 	{
-		p = image.ptr<uchar>(i);
+		uchar * p = image.ptr<uchar>(i);
 		for (int j = 0; j < image.cols*channels; j+=3)
 		{
 

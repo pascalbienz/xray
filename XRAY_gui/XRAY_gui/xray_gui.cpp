@@ -66,6 +66,46 @@ XRAY_gui::~XRAY_gui()
 
 }
 
+/*
+http://stackoverflow.com/questions/11933883/sort-filenames-naturally-with-qt
+
+modified : find latest number in file, sort according to the number
+*/
+
+inline int findNumberPart(const QString& sIn)
+{
+	QString s = "";
+	int i = sIn.length();
+	
+	bool stop=false;
+
+	while (--i >= 0)
+	{
+		if (!sIn[i].isNumber())
+			if(!stop)
+				continue;
+			else
+				break;
+		else
+		{
+				s = sIn[i]+s;
+				stop=true;
+		}
+		
+		
+	}
+	if (s == "")
+		return 0;
+	return s.toInt();
+}
+
+bool naturalSortCallback(const QString& s1, const QString& s2)
+{
+	int idx1 = findNumberPart(s1);
+	int idx2 = findNumberPart(s2);
+	return (idx1 < idx2);
+}
+
 
 void XRAY_gui::on_toolButton_clicked()
 {
@@ -82,8 +122,13 @@ void XRAY_gui::on_toolButton_clicked()
 	dirFilter.setNameFilters(QStringList()<<"*.bmp");
 	dirFilter.filter();
 
-	
-	listFiles->setStringList(dirFilter.entryList());
+	/*dirFilter.setSorting(QDir::LocaleAware|QDir::Name);
+	dirFilter.sorting();*/
+
+	auto list=dirFilter.entryList();
+	qSort(list.begin(), list.end(), naturalSortCallback);
+
+	listFiles->setStringList(list);//dirFilter.entryList());
 	//ui.listView->addItems(dirFilter.entryList());
 	//ui.listView->setModel(listFiles);
 
@@ -236,6 +281,12 @@ void XRAY_gui::startLoading(LoadingParam &param)
 {
 
 	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.matrix->pixSize,param.Smoothing,param.SmoothingInt);
+
+	float cogX,cogY,cogZ;
+
+	imageVolumeLoader::cog(param.matrix->voxels, param.matrix->w,param.matrix->h, param.matrix->d,cogX,cogY,cogZ);
+
+	imageVolumeLoader::correctCenter(param.pointCloud, (float)(param.matrix->w) / 2*param.matrix->pixSize, (float)(param.matrix->h) / 2*param.matrix->pixSize, (float)(param.matrix->d) / 2*param.matrix->pixSize, cogX*param.matrix->pixSize, cogY*param.matrix->pixSize, cogZ*param.matrix->pixSize);
 
 	
 }
@@ -550,7 +601,7 @@ void XRAY_gui::skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud
 {
 	QString name="Skeleton MA "+QString::number(pointClouds.size());
 
-	imageVolumeLoader::correctCenter(((pcl::PointCloud<pcl::PointXYZI>::Ptr)getActiveCloud()), (float)(currentData->w) / 2*currentData->pixSize, (float)(currentData->h) / 2*currentData->pixSize, (float)(voxel->d) / 2*currentData->pixSize, voxel->cogX*currentData->pixSize, voxel->cogY*currentData->pixSize, voxel->cogZ*currentData->pixSize);
+	//imageVolumeLoader::correctCenter(((pcl::PointCloud<pcl::PointXYZI>::Ptr)getActiveCloud()), (float)(currentData->w) / 2*currentData->pixSize, (float)(currentData->h) / 2*currentData->pixSize, (float)(voxel->d) / 2*currentData->pixSize, voxel->cogX*currentData->pixSize, voxel->cogY*currentData->pixSize, voxel->cogZ*currentData->pixSize);
 
 	pcl::PointCloud<pcl::PointXYZI>::Ptr c_(cloud2);
 

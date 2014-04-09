@@ -328,6 +328,67 @@ bool matVoxel::isTail(int x, int y, int z)
 		//(::check[16] && ::check[1]) ^ (::check[14] && ::check[1])));
 }
 
+
+char directions1[27][27*3];
+char directionL1[27]={0};
+
+char directions2[27][27*3];
+char directionL2[27]={0};
+
+void generateSetOfPossibleDirections()
+{
+	for (int c = 0; c < 27; c++)
+	{
+		 directionL1[c]=0;
+		 directionL2[c]=0;
+	}
+
+	for (int c = 0; c < 27; c++)
+	{
+
+	for (int i = 0; i < 27; i++)
+	{
+		int _x = idX(c) + idX(i);
+		int _y = idY(c) + idY(i);
+		int _z = idZ(c) + idZ(i);
+		if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || convertBlockDev27(_x, _y, _z) == c)
+			continue;
+		
+		directions1[c][directionL1[c]*3]=_x;
+		directions1[c][directionL1[c]*3+1]=_y;
+		directions1[c][directionL1[c]*3+2]=_z;
+
+		directionL1[c]++;
+
+	}
+
+	}
+
+
+	for (int c = 0; c < 27; c++)
+	{
+
+	for (int i = 0; i < 6; i++)
+	{
+		int _x = idX(c) + list6Neighbor[i * 3];
+		int _y = idY(c) + list6Neighbor[i * 3 + 1];
+		int _z = idZ(c) + list6Neighbor[i * 3 + 2];
+		if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || (abs(_x) + abs(_y) + abs(_z)>2)|| convertBlockDev27(_x, _y, _z) == c)
+			continue;
+
+
+		directions2[c][directionL2[c]*3]=_x;
+		directions2[c][directionL2[c]*3+1]=_y;
+		directions2[c][directionL2[c]*3+2]=_z;
+
+		directionL2[c]++;
+
+	}
+
+	}
+
+}
+
 /*
 Checking connectivity of the 6-adjacent object neighbours within the set of 26-adjacents object
 Note : Already optimized with custom list. To be done : simple discard of impossible moves by pre-calculating
@@ -408,13 +469,29 @@ bool matVoxel::topConnect26(int x, int y, int z)
 			opt->check[c] = true;
 			//::list.erase(::list.begin());//pop_back();
 			startList++;
-			for (int i = 0; i < 27; i++)
+			/*for (int i = 0; i < 27; i++)
 			{
 				int _x = idX(c) + idX(i);
 				int _y = idY(c) + idY(i);
 				int _z = idZ(c) + idZ(i);
 				if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0))
 					continue;
+				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == OBJECT&&!opt->check[convertBlockDev27(_x, _y, _z)])
+				{
+					opt->check[convertBlockDev27(_x, _y, _z)] = true;
+					nb++;
+					//::list.push_back(convertBlockDev27(_x, _y, _z));
+					opt->listF[nextList] = convertBlockDev27(_x, _y, _z);
+					nextList++;
+				}
+			}*/
+
+			for(int i=0;i<directionL1[c];i++)
+			{
+				int _x=directions1[c][i*3];
+				int _y=directions1[c][i*3+1];
+				int _z=directions1[c][i*3+2];
+
 				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == OBJECT&&!opt->check[convertBlockDev27(_x, _y, _z)])
 				{
 					opt->check[convertBlockDev27(_x, _y, _z)] = true;
@@ -447,7 +524,10 @@ Checking connectivity of 6-adjacent background neighbours within the set of 18-a
 bool matVoxel::topConnect6(int x, int y, int z)
 {
 
-	//int threadID=omp_get_thread_num();	//tmp * opt =&tmpContainers[omp_get_thread_num()];
+	//int threadID=omp_get_thread_num();
+
+	//tmp * opt =&tmpContainers[omp_get_thread_num()];
+
 
 
 	int nBack = 0;
@@ -520,6 +600,26 @@ bool matVoxel::topConnect6(int x, int y, int z)
 					nextList++;
 				}
 			}
+
+			/*for (int i = 0; i < directionL2[c]; i++)
+			{
+				int _x=directions2[c][i*3];
+				int _y=directions2[c][i*3+1];
+				int _z=directions2[c][i*3+2];
+
+
+				int n = convertBlockDev27(_x, _y, _z);
+				if (voxelTypes[getAt(x + _x, y + _y, z + _z)] == BACKGROUND&&!opt->check[n])
+				{
+					opt->check[n] = true;
+					if (n == 4 || n == 10 || n == 12 || n == 14 || n == 16 || n == 22)
+						nb++;
+					//::list.push_back(convertBlockDev27(_x, _y, _z));
+
+					opt->listF[nextList] = convertBlockDev27(_x, _y, _z);
+					nextList++;
+				}
+			}*/
 		}
 
 		if (nb == nBack)
@@ -780,7 +880,7 @@ void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 	}
 
 	this->voxels = voxels;
-	this->voxelTypes = new VoxelType[w*h*d];
+	this->voxelTypes = new byte[w*h*d];//VoxelType[w*h*d];
 	this->w = w;
 	this->h = h;
 	this->d = d;
@@ -816,7 +916,10 @@ void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 
 void matVoxel::algo2()
 {
+	generateSetOfPossibleDirections();
+
 	omp_set_nested(1);
+	omp_set_num_threads(4);
 
 	notify_( ((ostringstream&)(ostringstream() << std::endl<< "Beginning skeletonization" )).str());
 
@@ -828,6 +931,49 @@ void matVoxel::algo2()
 	int nbMarkers=0;
 
 	//std::vector<int> voxels_correct(10000000);
+
+	int startX=MAXINT,endX=0,startY=MAXINT,endY=0,startZ=MAXINT,endZ=0;
+
+	//reduction(Min : startX,startY,startZ) reduction(Max :endX,endY,endZ)
+
+	DWORD start=GetTickCount();
+
+	#pragma omp parallel for
+	for (int z = 1; z < d - 1; z++)
+	{
+		for (int x = 1; x < w - 1; x++)
+		{
+			for (int y = 1; y < h - 1; y++)
+			{
+				if (voxelTypes[getAt(x, y, z)] == OBJECT)
+				{
+					
+					#pragma omp flush(startX,startY,startZ,endX,endY,endZ)
+
+					#pragma omp critical
+					{
+					startX = min(startX,x);
+					startY = min(startY, y);
+					startZ = min(startZ, z);
+
+					endX = max(endX, x);
+					endY = max(endY, y);
+					endZ = max(endZ, z);
+					}
+				}
+			}
+		}
+	}
+
+	OutputDebugString((boost::lexical_cast<string>((GetTickCount()-start))+"\n").c_str());
+
+	startX--;
+	startY--;
+	startZ--;
+
+	endX++;
+	endY++;
+	endZ++;
 
 	bool iteration = true;
 
@@ -842,7 +988,7 @@ void matVoxel::algo2()
 
 		iteration=false;
 
-		DWORD start=GetTickCount();
+		start=GetTickCount();
 
 		for (int d_ = 0; d_ < 6; d_++)
 		{
@@ -853,18 +999,18 @@ void matVoxel::algo2()
 			
 				// schedule(dynamic,1)
 			
-			omp_set_num_threads(4);
+			//omp_set_num_threads(4);
 
 			#pragma omp parallel for shared(nbMarkers) schedule(static,1)
-			for (int z = 1; z < d - 1; z++)
+			for (int z = startZ; z <= endZ; z++)
 			{
 				//if(z==1)
 				//OutputDebugString((boost::lexical_cast<string>(omp_get_num_threads())+"\n").c_str());
 				//#pragma omp for nowait
-				for (int x = 1; x < w - 1; x++)
+				for (int x = startX; x <= endX; x++)
 				{
 					//#pragma omp for nowait
-					for (int y = 1; y < h - 1; y++)
+					for (int y = startY; y <= endY; y++)
 					{
 						if (voxelTypes[getAt(x, y, z)] == OBJECT&&isBorder(x, y, z, d_)&&simplePoint(x,y,z)&&!isTail(x,y,z))
 						{
