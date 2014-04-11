@@ -13,6 +13,7 @@
 #include <QProgressBar>
 #include <QHash>
 #include <QtCore>
+#include <Resizable_rubber_band.h>
 
 #include <matVoxel.h>
 #include <boost/thread/thread.hpp>
@@ -67,6 +68,7 @@ private:
 
 signals:
 	void getRes(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
+	void finished();
 };
 
 class XRAY_gui : public QMainWindow, public iobserverClass
@@ -87,6 +89,10 @@ public:
 	QHash<QString, pcl::PointCloud<pcl::PointXYZI>::Ptr> pointClouds;
 	QHash<QString, matVoxel *> algData;
 	QHash<QString, pcl::PolygonMesh *> meshes;
+	QHash<QString, Wm5::BSplineCurve3d *> curves;
+
+	Resizable_rubber_band *selectionRectangle;
+	QPoint cropTopLeft,cropBottomRight;
 
 	void showImage(int i);
 	void fitImage();
@@ -102,7 +108,8 @@ public	slots: void on_toolButton_clicked();
 	void updateProcessDisp();
 	void secureThreadUpdate(QString data);
 	QString getFile(int i);
-	void addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QString &name );
+	void addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QString &name , float pointSize=1, float opacity=0.5);
+	void addCloud( pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud, QString &name , float pointSize=1, float opacity=0.5);
 	void handleLoading();
 	static void startLoading(LoadingParam &param);
 	void on_treeWidget_itemSelectionChanged();
@@ -110,15 +117,31 @@ public	slots: void on_toolButton_clicked();
 	void on_opacitydoubleSpinBox_valueChanged(double i);
 	VolumeData * getActiveVolume();
 	void on_skeletonizepushButton_clicked();
+
+	
+
 	pcl::PointCloud<pcl::PointXYZI>::Ptr getActiveCloud();
 	matVoxel * getActiveSkeleton();
-	void skeleton(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
+	void skeletonLoading(matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData);
 	std::string getActiveCloudName();
 	void enableInterface(bool v);
 	void on_delpushButton_clicked();
 	void on_cleanPathpushButton_clicked();
 	void on_splinepushButton_4_clicked();
-
+	void on_actionExport_settings_triggered();
+	void loadDir(QString dir);
+	void on_actionImport_settings_triggered();
+	void run();
+	QThread * Skeletonize( VolumeData * currentData );
+	void pruning(matVoxel * skeleton_);
+	void on_runpushButton_clicked();
+	QFutureWatcher<void> * loadVolumeFromListFiles();
+	QString getActiveSkeletonName();
+	void fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl);
+	void addItemToTreeWidget(QString itemName, QString parentName, bool afterSelect=true);
+	void on_prethresholdspinBox_valueChanged();
+	void on_gaussianspinBox_valueChanged();
+	void on_previewcheckBox_stateChanged(int i);
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

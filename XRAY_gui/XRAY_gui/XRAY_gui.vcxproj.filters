@@ -50,6 +50,21 @@
     <ClCompile Include="GeneratedFiles\qrc_xray_gui.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="OptionsLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imageSelect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_imageSelect.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_imageSelect.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Resizable_rubber_band.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="xray_gui.h">
@@ -64,6 +79,9 @@
     <CustomBuild Include="dialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="imageSelect.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_xray_gui.h">
@@ -72,8 +90,17 @@
     <ClInclude Include="GeneratedFiles\ui_dialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="OptionsLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resizable_rubber_band.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="XRAY_gui.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

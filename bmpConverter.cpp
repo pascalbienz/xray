@@ -109,7 +109,7 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 	cv::Mat image = cv::imread(pathfiles.at(0));
 
-	(*voxels) = (byte*)malloc(sizeof(byte)*image.rows*image.cols*(pathfiles.size()));//new byte[image.rows*image.cols*(pathfiles.size())];
+	(*voxels) = new byte[image.rows*image.cols*(pathfiles.size())];//new byte[image.rows*image.cols*(pathfiles.size())];
 
 	w=image.cols;
 	h=image.rows;

@@ -87,7 +87,7 @@ public:
 	//ON_NurbsCurve* cur;
 	Wm5::BSplineCurve3d *cur;*/
 
-	void matVoxel::plans(boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer, string path,pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values);
+	void matVoxel::plans(pcl::visualization::PCLVisualizer* viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, bool processImages=false);
 	void matVoxel::projectBack(Wm5::BSplineCurve3d * cur);
 
 
@@ -97,7 +97,7 @@ public:
 	void cog();
 
 
-	static void fitCurve(int order, pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud, pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb,Wm5::BSplineCurve3d * cur);
+	static void fitCurve(int order, pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud, pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb,Wm5::BSplineCurve3d * * cur);
 	static pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 	
 	bool init;

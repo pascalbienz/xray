@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1188</width>
+    <width>1152</width>
     <height>902</height>
    </rect>
   </property>
@@ -21,6 +21,15 @@
   </property>
   <property name="styleSheet">
    <string notr="true"/>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_3">
@@ -51,7 +60,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QLabel" name="labelImage">
+         <widget class="imageSelect" name="labelImage">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -79,6 +88,23 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="previewcheckBox">
+          <property name="text">
+           <string>Preview preprocessing</string>
+          </property>
+          <property name="tristate">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="namelabel_13">
+          <property name="text">
+           <string>Image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QSlider" name="horizontalSlider">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -102,7 +128,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1188</width>
+     <width>1152</width>
      <height>21</height>
     </rect>
    </property>
@@ -167,6 +193,9 @@
          <widget class="QListView" name="listView">
           <property name="defaultDropAction">
            <enum>Qt::MoveAction</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
           <property name="movement">
            <enum>QListView::Free</enum>
@@ -280,33 +309,12 @@
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
      </property>
-     <item row="1" column="0" colspan="2">
+     <item row="0" column="0" colspan="2">
       <widget class="QGroupBox" name="groupBox_2">
        <property name="title">
         <string>Skeletonize</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Thresholding</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="skthresholdspinBox">
-            <property name="maximum">
-             <number>255</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
         <item>
          <widget class="QPushButton" name="skeletonizepushButton">
           <property name="text">
@@ -324,17 +332,24 @@
        </layout>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
+     <item row="1" column="0" colspan="2">
       <widget class="QGroupBox" name="groupBox_3">
        <property name="title">
         <string>Smoothing</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <layout class="QGridLayout" name="gridLayout_2" rowstretch="0" columnstretch="0,5">
+         <layout class="QGridLayout" name="gridLayout_2" rowstretch="0" columnstretch="0,0">
           <property name="rightMargin">
            <number>0</number>
           </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Order</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QSpinBox" name="orderspinBox">
             <property name="maximum">
@@ -342,13 +357,6 @@
             </property>
             <property name="value">
              <number>100</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Order</string>
             </property>
            </widget>
           </item>
@@ -364,7 +372,7 @@
        </layout>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
+     <item row="2" column="0" colspan="2">
       <widget class="QGroupBox" name="groupBox_4">
        <property name="title">
         <string>Path correction</string>
@@ -376,7 +384,7 @@
            <number>0</number>
           </property>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox_3">
+           <widget class="QSpinBox" name="subdividespinBox">
             <property name="maximum">
              <number>1000000</number>
             </property>
@@ -395,6 +403,78 @@
          </layout>
         </item>
         <item>
+         <layout class="QGridLayout" name="gridLayout_7" rowstretch="0" columnstretch="0,5">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="framesperdivspinBox">
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string># Averaging </string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_8" rowstretch="0" columnstretch="0,5">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="endthresholdspinBox">
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>End of line threshold ( %)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_9" rowstretch="0" columnstretch="0,5">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="planedimspinBox">
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Plane dimensions (um) :</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QPushButton" name="reconstruct_pushButton_5">
           <property name="text">
            <string>Reconstruct path</string>
@@ -404,10 +484,18 @@
        </layout>
       </widget>
      </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QPushButton" name="runpushButton">
+       <property name="text">
+        <string>Run</string>
+       </property>
+      </widget>
+     </item>
     </layout>
     <zorder>groupBox_3</zorder>
     <zorder>groupBox_2</zorder>
     <zorder>groupBox_4</zorder>
+    <zorder>runpushButton</zorder>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_4">
@@ -439,31 +527,6 @@
         <property name="text">
          <string>Vol. data</string>
         </property>
-        <item>
-         <property name="text">
-          <string>3D</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Skeletons</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Paths</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Points</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>B-Splines</string>
-          </property>
-         </item>
-        </item>
        </item>
       </widget>
      </item>
@@ -521,7 +584,7 @@
     <string>Properties</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_5">
     <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -587,6 +650,11 @@
    <class>QVTKWidget</class>
    <extends>QWidget</extends>
    <header>QVTKWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>imageSelect</class>
+   <extends>QLabel</extends>
+   <header>imageselect.h</header>
   </customwidget>
  </customwidgets>
  <resources>

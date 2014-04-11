@@ -511,6 +511,8 @@ main(int argc, char** argv)
 
 		std::vector<int> markers_endpoints;
 
+		::test.cog();
+
 		::test.isolatePoints(markers_endpoints);
 
 		pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud(new pcl::PointCloud<pcl::PointXYZI>);
@@ -564,24 +566,24 @@ main(int argc, char** argv)
 
 		Wm5::BSplineCurve3d * cur;
 
-		test.fitCurve(100,path_cloud,nurb,cur);
+		test.fitCurve(100,path_cloud,nurb,&cur);
 
 		pcl::PolygonMesh::Ptr mesh =test.toPoly(nurb);
 
 		viewer->addPolylineFromPolygonMesh(*mesh);
 
 
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZRGB>());
+		pcl::PointCloud<pcl::PointXYZI>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZI>());
 
 
 		std::vector<std::pair<double,double>> y_values;
 
 
-		test.plans(viewer,path,center_line,path_cloud->size()/10,cur,y_values);
+		test.plans(viewer.get(),path,center_line,path_cloud->size()/10,cur,y_values,200,true);
 
 		//viewer->addPolylineFromPolygonMesh(test.toPoly(test.center_line),"center_line");
 
-		viewer->addPointCloud<pcl::PointXYZRGB>(center_line, "cloud center line");
+		viewer->addPointCloud<pcl::PointXYZI>(center_line, "cloud center line");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "cloud center line");
 		viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud center line");
 

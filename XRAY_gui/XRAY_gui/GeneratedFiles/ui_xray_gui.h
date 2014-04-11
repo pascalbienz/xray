@@ -13,6 +13,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QDockWidget>
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QFormLayout>
@@ -38,6 +39,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include "QVTKWidget.h"
+#include "imageselect.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -54,7 +56,9 @@ public:
     QVTKWidget *qvtkWidget;
     QWidget *tab_2;
     QVBoxLayout *verticalLayout_8;
-    QLabel *labelImage;
+    imageSelect *labelImage;
+    QCheckBox *previewcheckBox;
+    QLabel *namelabel_13;
     QSlider *horizontalSlider;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -89,23 +93,30 @@ public:
     QFormLayout *formLayout;
     QGroupBox *groupBox_2;
     QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_4;
-    QLabel *label_6;
-    QSpinBox *skthresholdspinBox;
     QPushButton *skeletonizepushButton;
     QPushButton *cleanPathpushButton;
     QGroupBox *groupBox_3;
     QVBoxLayout *verticalLayout_6;
     QGridLayout *gridLayout_2;
-    QSpinBox *orderspinBox;
     QLabel *label;
+    QSpinBox *orderspinBox;
     QPushButton *splinepushButton_4;
     QGroupBox *groupBox_4;
     QVBoxLayout *verticalLayout_7;
     QGridLayout *gridLayout_4;
-    QSpinBox *spinBox_3;
+    QSpinBox *subdividespinBox;
     QLabel *label_3;
+    QGridLayout *gridLayout_7;
+    QSpinBox *framesperdivspinBox;
+    QLabel *label_6;
+    QGridLayout *gridLayout_8;
+    QSpinBox *endthresholdspinBox;
+    QLabel *label_7;
+    QGridLayout *gridLayout_9;
+    QSpinBox *planedimspinBox;
+    QLabel *label_10;
     QPushButton *reconstruct_pushButton_5;
+    QPushButton *runpushButton;
     QDockWidget *dockWidget_4;
     QWidget *dockWidgetContents_7;
     QVBoxLayout *verticalLayout_5;
@@ -129,13 +140,16 @@ public:
     {
         if (XRAY_guiClass->objectName().isEmpty())
             XRAY_guiClass->setObjectName(QString::fromUtf8("XRAY_guiClass"));
-        XRAY_guiClass->resize(1188, 902);
+        XRAY_guiClass->resize(1152, 902);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(XRAY_guiClass->sizePolicy().hasHeightForWidth());
         XRAY_guiClass->setSizePolicy(sizePolicy);
         XRAY_guiClass->setStyleSheet(QString::fromUtf8(""));
+        XRAY_guiClass->setDocumentMode(false);
+        XRAY_guiClass->setDockNestingEnabled(false);
+        XRAY_guiClass->setUnifiedTitleAndToolBarOnMac(false);
         actionImport_settings = new QAction(XRAY_guiClass);
         actionImport_settings->setObjectName(QString::fromUtf8("actionImport_settings"));
         actionExport_settings = new QAction(XRAY_guiClass);
@@ -168,7 +182,7 @@ public:
         verticalLayout_8->setSpacing(6);
         verticalLayout_8->setContentsMargins(11, 11, 11, 11);
         verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
-        labelImage = new QLabel(tab_2);
+        labelImage = new imageSelect(tab_2);
         labelImage->setObjectName(QString::fromUtf8("labelImage"));
         sizePolicy.setHeightForWidth(labelImage->sizePolicy().hasHeightForWidth());
         labelImage->setSizePolicy(sizePolicy);
@@ -178,6 +192,17 @@ public:
         labelImage->setAlignment(Qt::AlignCenter);
 
         verticalLayout_8->addWidget(labelImage);
+
+        previewcheckBox = new QCheckBox(tab_2);
+        previewcheckBox->setObjectName(QString::fromUtf8("previewcheckBox"));
+        previewcheckBox->setTristate(false);
+
+        verticalLayout_8->addWidget(previewcheckBox);
+
+        namelabel_13 = new QLabel(tab_2);
+        namelabel_13->setObjectName(QString::fromUtf8("namelabel_13"));
+
+        verticalLayout_8->addWidget(namelabel_13);
 
         horizontalSlider = new QSlider(tab_2);
         horizontalSlider->setObjectName(QString::fromUtf8("horizontalSlider"));
@@ -194,7 +219,7 @@ public:
         XRAY_guiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(XRAY_guiClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1188, 21));
+        menuBar->setGeometry(QRect(0, 0, 1152, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         XRAY_guiClass->setMenuBar(menuBar);
@@ -240,6 +265,7 @@ public:
         listView = new QListView(groupBox);
         listView->setObjectName(QString::fromUtf8("listView"));
         listView->setDefaultDropAction(Qt::MoveAction);
+        listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         listView->setMovement(QListView::Free);
 
         verticalLayout_3->addWidget(listView);
@@ -344,24 +370,6 @@ public:
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setSpacing(6);
-        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        label_6 = new QLabel(groupBox_2);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-
-        horizontalLayout_4->addWidget(label_6);
-
-        skthresholdspinBox = new QSpinBox(groupBox_2);
-        skthresholdspinBox->setObjectName(QString::fromUtf8("skthresholdspinBox"));
-        skthresholdspinBox->setMaximum(255);
-        skthresholdspinBox->setValue(100);
-
-        horizontalLayout_4->addWidget(skthresholdspinBox);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_4);
-
         skeletonizepushButton = new QPushButton(groupBox_2);
         skeletonizepushButton->setObjectName(QString::fromUtf8("skeletonizepushButton"));
 
@@ -373,7 +381,7 @@ public:
         verticalLayout_4->addWidget(cleanPathpushButton);
 
 
-        formLayout->setWidget(1, QFormLayout::SpanningRole, groupBox_2);
+        formLayout->setWidget(0, QFormLayout::SpanningRole, groupBox_2);
 
         groupBox_3 = new QGroupBox(dockWidgetContents_4);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
@@ -385,6 +393,11 @@ public:
         gridLayout_2->setSpacing(6);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         gridLayout_2->setContentsMargins(-1, -1, 0, -1);
+        label = new QLabel(groupBox_3);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        gridLayout_2->addWidget(label, 0, 0, 1, 1);
+
         orderspinBox = new QSpinBox(groupBox_3);
         orderspinBox->setObjectName(QString::fromUtf8("orderspinBox"));
         orderspinBox->setMaximum(1000);
@@ -392,12 +405,6 @@ public:
 
         gridLayout_2->addWidget(orderspinBox, 0, 1, 1, 1);
 
-        label = new QLabel(groupBox_3);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        gridLayout_2->addWidget(label, 0, 0, 1, 1);
-
-        gridLayout_2->setColumnStretch(1, 5);
 
         verticalLayout_6->addLayout(gridLayout_2);
 
@@ -407,7 +414,7 @@ public:
         verticalLayout_6->addWidget(splinepushButton_4);
 
 
-        formLayout->setWidget(2, QFormLayout::SpanningRole, groupBox_3);
+        formLayout->setWidget(1, QFormLayout::SpanningRole, groupBox_3);
 
         groupBox_4 = new QGroupBox(dockWidgetContents_4);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
@@ -419,12 +426,12 @@ public:
         gridLayout_4->setSpacing(6);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         gridLayout_4->setContentsMargins(-1, -1, 0, -1);
-        spinBox_3 = new QSpinBox(groupBox_4);
-        spinBox_3->setObjectName(QString::fromUtf8("spinBox_3"));
-        spinBox_3->setMaximum(1000000);
-        spinBox_3->setValue(1000);
+        subdividespinBox = new QSpinBox(groupBox_4);
+        subdividespinBox->setObjectName(QString::fromUtf8("subdividespinBox"));
+        subdividespinBox->setMaximum(1000000);
+        subdividespinBox->setValue(1000);
 
-        gridLayout_4->addWidget(spinBox_3, 0, 1, 1, 1);
+        gridLayout_4->addWidget(subdividespinBox, 0, 1, 1, 1);
 
         label_3 = new QLabel(groupBox_4);
         label_3->setObjectName(QString::fromUtf8("label_3"));
@@ -435,18 +442,84 @@ public:
 
         verticalLayout_7->addLayout(gridLayout_4);
 
+        gridLayout_7 = new QGridLayout();
+        gridLayout_7->setSpacing(6);
+        gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
+        gridLayout_7->setContentsMargins(-1, -1, 0, -1);
+        framesperdivspinBox = new QSpinBox(groupBox_4);
+        framesperdivspinBox->setObjectName(QString::fromUtf8("framesperdivspinBox"));
+        framesperdivspinBox->setMaximum(1000000);
+        framesperdivspinBox->setValue(10);
+
+        gridLayout_7->addWidget(framesperdivspinBox, 0, 1, 1, 1);
+
+        label_6 = new QLabel(groupBox_4);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        gridLayout_7->addWidget(label_6, 0, 0, 1, 1);
+
+        gridLayout_7->setColumnStretch(1, 5);
+
+        verticalLayout_7->addLayout(gridLayout_7);
+
+        gridLayout_8 = new QGridLayout();
+        gridLayout_8->setSpacing(6);
+        gridLayout_8->setObjectName(QString::fromUtf8("gridLayout_8"));
+        gridLayout_8->setContentsMargins(-1, -1, 0, -1);
+        endthresholdspinBox = new QSpinBox(groupBox_4);
+        endthresholdspinBox->setObjectName(QString::fromUtf8("endthresholdspinBox"));
+        endthresholdspinBox->setMaximum(1000000);
+        endthresholdspinBox->setValue(20);
+
+        gridLayout_8->addWidget(endthresholdspinBox, 0, 1, 1, 1);
+
+        label_7 = new QLabel(groupBox_4);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+
+        gridLayout_8->addWidget(label_7, 0, 0, 1, 1);
+
+        gridLayout_8->setColumnStretch(1, 5);
+
+        verticalLayout_7->addLayout(gridLayout_8);
+
+        gridLayout_9 = new QGridLayout();
+        gridLayout_9->setSpacing(6);
+        gridLayout_9->setObjectName(QString::fromUtf8("gridLayout_9"));
+        gridLayout_9->setContentsMargins(-1, -1, 0, -1);
+        planedimspinBox = new QSpinBox(groupBox_4);
+        planedimspinBox->setObjectName(QString::fromUtf8("planedimspinBox"));
+        planedimspinBox->setMaximum(1000000);
+        planedimspinBox->setValue(100);
+
+        gridLayout_9->addWidget(planedimspinBox, 0, 1, 1, 1);
+
+        label_10 = new QLabel(groupBox_4);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        gridLayout_9->addWidget(label_10, 0, 0, 1, 1);
+
+        gridLayout_9->setColumnStretch(1, 5);
+
+        verticalLayout_7->addLayout(gridLayout_9);
+
         reconstruct_pushButton_5 = new QPushButton(groupBox_4);
         reconstruct_pushButton_5->setObjectName(QString::fromUtf8("reconstruct_pushButton_5"));
 
         verticalLayout_7->addWidget(reconstruct_pushButton_5);
 
 
-        formLayout->setWidget(3, QFormLayout::SpanningRole, groupBox_4);
+        formLayout->setWidget(2, QFormLayout::SpanningRole, groupBox_4);
+
+        runpushButton = new QPushButton(dockWidgetContents_4);
+        runpushButton->setObjectName(QString::fromUtf8("runpushButton"));
+
+        formLayout->setWidget(3, QFormLayout::SpanningRole, runpushButton);
 
         dockWidget_3->setWidget(dockWidgetContents_4);
         groupBox_3->raise();
         groupBox_2->raise();
         groupBox_4->raise();
+        runpushButton->raise();
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(2), dockWidget_3);
         dockWidget_4 = new QDockWidget(XRAY_guiClass);
         dockWidget_4->setObjectName(QString::fromUtf8("dockWidget_4"));
@@ -461,12 +534,7 @@ public:
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("Components"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
-        QTreeWidgetItem *__qtreewidgetitem1 = new QTreeWidgetItem(treeWidget);
-        QTreeWidgetItem *__qtreewidgetitem2 = new QTreeWidgetItem(__qtreewidgetitem1);
-        new QTreeWidgetItem(__qtreewidgetitem2);
-        new QTreeWidgetItem(__qtreewidgetitem2);
-        new QTreeWidgetItem(__qtreewidgetitem2);
-        new QTreeWidgetItem(__qtreewidgetitem2);
+        new QTreeWidgetItem(treeWidget);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
         treeWidget->setAutoExpandDelay(-1);
         treeWidget->setAnimated(true);
@@ -551,7 +619,7 @@ public:
         verticalLayout_10->addLayout(horizontalLayout_6);
 
         propertiesdockWidget->setWidget(dockWidgetContents_5);
-        XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(2), propertiesdockWidget);
+        XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), propertiesdockWidget);
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionImport_settings);
@@ -572,6 +640,8 @@ public:
         actionExport_settings->setText(QApplication::translate("XRAY_guiClass", "Export settings", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("XRAY_guiClass", "3D", 0, QApplication::UnicodeUTF8));
         labelImage->setText(QString());
+        previewcheckBox->setText(QApplication::translate("XRAY_guiClass", "Preview preprocessing", 0, QApplication::UnicodeUTF8));
+        namelabel_13->setText(QApplication::translate("XRAY_guiClass", "Image", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("XRAY_guiClass", "Images", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("XRAY_guiClass", "File", 0, QApplication::UnicodeUTF8));
         dockWidget->setWindowTitle(QApplication::translate("XRAY_guiClass", "Project", 0, QApplication::UnicodeUTF8));
@@ -584,7 +654,6 @@ public:
         dockWidget_2->setWindowTitle(QApplication::translate("XRAY_guiClass", "Visualize", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("XRAY_guiClass", "Histogram", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("XRAY_guiClass", "Thresholding", 0, QApplication::UnicodeUTF8));
         skeletonizepushButton->setText(QApplication::translate("XRAY_guiClass", "Skeletonize", 0, QApplication::UnicodeUTF8));
         cleanPathpushButton->setText(QApplication::translate("XRAY_guiClass", "Clean Skeleton (Pruning)", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("XRAY_guiClass", "Smoothing", 0, QApplication::UnicodeUTF8));
@@ -592,22 +661,16 @@ public:
         splinepushButton_4->setText(QApplication::translate("XRAY_guiClass", "Create B-Spline", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("XRAY_guiClass", "Path correction", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("XRAY_guiClass", "# Subdivisions of cross-section", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("XRAY_guiClass", "# Averaging ", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("XRAY_guiClass", "End of line threshold ( %)", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("XRAY_guiClass", "Plane dimensions (um) :", 0, QApplication::UnicodeUTF8));
         reconstruct_pushButton_5->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));
+        runpushButton->setText(QApplication::translate("XRAY_guiClass", "Run", 0, QApplication::UnicodeUTF8));
 
         const bool __sortingEnabled = treeWidget->isSortingEnabled();
         treeWidget->setSortingEnabled(false);
         QTreeWidgetItem *___qtreewidgetitem = treeWidget->topLevelItem(0);
         ___qtreewidgetitem->setText(0, QApplication::translate("XRAY_guiClass", "Vol. data", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem1 = ___qtreewidgetitem->child(0);
-        ___qtreewidgetitem1->setText(0, QApplication::translate("XRAY_guiClass", "3D", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem2 = ___qtreewidgetitem1->child(0);
-        ___qtreewidgetitem2->setText(0, QApplication::translate("XRAY_guiClass", "Skeletons", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem3 = ___qtreewidgetitem1->child(1);
-        ___qtreewidgetitem3->setText(0, QApplication::translate("XRAY_guiClass", "Paths", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem4 = ___qtreewidgetitem1->child(2);
-        ___qtreewidgetitem4->setText(0, QApplication::translate("XRAY_guiClass", "Points", 0, QApplication::UnicodeUTF8));
-        QTreeWidgetItem *___qtreewidgetitem5 = ___qtreewidgetitem1->child(3);
-        ___qtreewidgetitem5->setText(0, QApplication::translate("XRAY_guiClass", "B-Splines", 0, QApplication::UnicodeUTF8));
         treeWidget->setSortingEnabled(__sortingEnabled);
 
         delpushButton->setText(QApplication::translate("XRAY_guiClass", "Delete selection", 0, QApplication::UnicodeUTF8));
