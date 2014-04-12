@@ -1067,12 +1067,16 @@ void XRAY_gui::run()
 	secureThreadUpdate("Correction of the path center");
 	QCoreApplication::processEvents();
 
-	skeleton->plans(viewer,"C:/test/",center_line,pathCloud->size(),curves.values().last(),y_values,ui.planedimspinBox->value(),false);
+	skeleton->plans(NULL,"C:/test/",center_line,pathCloud->size(),curves.values().last(),y_values,ui.planedimspinBox->value(),false);
 
 	QString name="Center Line"+QString::number(pointClouds.size());
 	pointClouds.insert(name,center_line);
 	addCloud(center_line,name);
 	addItemToTreeWidget(name,getActiveSkeletonName());
+
+	pathCloud=getActiveCloud();
+
+	fitCurve(getActiveCloud());
 
 	}
 
