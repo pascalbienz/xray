@@ -62,6 +62,8 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 
 	ui.treeWidget->expandAll();
 
+	//viewer->spin();
+
 	/*selectionRectangle=new Resizable_rubber_band(ui.labelImage);
 	selectionRectangle->move(0,0);
 	selectionRectangle->resize(100,100);*/
@@ -204,6 +206,26 @@ void XRAY_gui::on_previewcheckBox_stateChanged(int i)
 	on_horizontalSlider_valueChanged();
 }
 
+void XRAY_gui::on_lspinBox_valueChanged()
+{
+	on_horizontalSlider_valueChanged();
+}
+
+void XRAY_gui::on_rspinBox_valueChanged()
+{
+	on_horizontalSlider_valueChanged();
+}
+
+void XRAY_gui::on_tspinBox_valueChanged()
+{
+	on_horizontalSlider_valueChanged();
+}
+
+void XRAY_gui::on_bspinBox_valueChanged()
+{
+	on_horizontalSlider_valueChanged();
+}
+
 void XRAY_gui::showImage(int i)
 {
 
@@ -216,10 +238,20 @@ void XRAY_gui::showImage(int i)
 		{
 		cv::Mat image_ = cv::imread(getFile(i).toStdString());
 
+		image_.convertTo(image_,CV_8UC3);
+
 		cv::threshold(image_,image_,ui.prethresholdspinBox->value(),255,0);
 
 		if (ui.gaussianspinBox->value()>0)
 			cv::GaussianBlur(image_, image_, cv::Size((ui.gaussianspinBox->value()/2)*2+1, (ui.gaussianspinBox->value()/2)*2+1), 0, 0);
+
+
+		int left=ui.lspinBox->value();
+		int top=ui.tspinBox->value();
+		int width=image_.cols-left-ui.rspinBox->value();
+		int height=image_.rows-top-ui.bspinBox->value();
+
+		cv::rectangle(image_,cv::Rect(left,top,width,height),CV_RGB(100,200,230),1);
 
 			image=QPixmap::fromImage(QImage(image_.data,image_.cols,image_.rows,QImage::Format_RGB888));
 		}
@@ -257,7 +289,7 @@ void XRAY_gui::fitImage()
 	w=std::min(image.width(),std::min(w,h));
 	h=w;
 
-	ui.labelImage->setPixmap(image.scaled(w,h,Qt::KeepAspectRatio));
+	ui.labelImage->setPixmap(image.scaled(w,h,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
 	}
 
@@ -265,7 +297,10 @@ void XRAY_gui::fitImage()
 
 QString XRAY_gui::getFile(int i)
 {
-	return ui.lineEdit->text()+"/"+listFiles->stringList().at(i);
+	if(i<listFiles->rowCount())
+		return ui.lineEdit->text()+"/"+listFiles->stringList().at(i);
+	else
+		return QString();
 }
 
 void XRAY_gui::itemcurrentChanged ( const QModelIndex & current)
@@ -313,6 +348,12 @@ QFutureWatcher<void> * XRAY_gui::loadVolumeFromListFiles()
 	parameters->matrix->pixSize=ui.pixSizedoubleSpinBox->value();
 	parameters->pointCloud=pointCloud;
 	parameters->threshold=ui.prethresholdspinBox->value();
+	parameters->cropL=ui.lspinBox->value();
+	parameters->cropR=ui.rspinBox->value();
+	parameters->cropT=ui.tspinBox->value();
+	parameters->cropB=ui.bspinBox->value();
+	parameters->Smoothing=ui.gaussianspinBox->value()>0?true:false;
+	parameters->SmoothingInt=ui.gaussianspinBox->value();
 	//parameters->pixSize=ui.pixSizedoubleSpinBox->value();
 
 	for(int i=0;i<listFiles->stringList().size();i++)
@@ -352,7 +393,7 @@ QFutureWatcher<void> * XRAY_gui::loadVolumeFromListFiles()
 void XRAY_gui::startLoading(LoadingParam &param)
 {
 
-	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.matrix->pixSize,param.Smoothing,param.SmoothingInt);
+	imageVolumeLoader::loadDataSet(param.vec,param.pointCloud,&(param.matrix->voxels),param.matrix->w,param.matrix->h,param.matrix->d,param.threshold,param.matrix->pixSize,param.Smoothing,param.SmoothingInt,param.cropL,param.cropR,param.cropT,param.cropB);
 
 	float cogX,cogY,cogZ;
 
@@ -523,7 +564,8 @@ void XRAY_gui::on_pointsizespinBox_valueChanged(int i)
 			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, ui.pointsizespinBox->value(), items[0]->text(0).toStdString());
 			//viewer->spin();
 			viewer->updateCamera();
-			viewer->spinOnce(1,true);
+			ui.qvtkWidget->update();
+			//viewer->spinOnce(1,true);
 		}
 	}
 }
@@ -540,7 +582,8 @@ void XRAY_gui::on_opacitydoubleSpinBox_valueChanged(double i)
 			viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, ui.opacitydoubleSpinBox->value(), items[0]->text(0).toStdString());
 			//viewer->spin();
 			viewer->updateCamera();
-			viewer->spinOnce(1,true);
+			ui.qvtkWidget->update();
+			//viewer->spinOnce(1,true);
 		}
 	}
 }
@@ -736,6 +779,7 @@ void XRAY_gui::skeletonLoading( matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> handler(getActiveCloud(), "intensity");
 	viewer->updatePointCloud(getActiveCloud(),handler,getActiveCloudName());
 	viewer->updateCamera();
+	ui.qvtkWidget->update();
 	//viewer->spinOnce(1,true);
 
 	secureThreadUpdate("Skeleton points : "+QString::number(c_->points.size()));
@@ -917,7 +961,7 @@ void XRAY_gui::on_splinepushButton_4_clicked()
 
 }
 
-void XRAY_gui::fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl)
+Wm5::BSplineCurve3d * XRAY_gui::fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl)
 {
 
 	secureThreadUpdate("Fitting curve : "+QString::number( cl->size() )+" points.");
@@ -946,9 +990,11 @@ void XRAY_gui::fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl)
 	viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
 
 
+
 //	viewer->updateCamera();
 	//viewer->spinOnce(1,true);
 
+	return curve;
 
 }
 
@@ -975,6 +1021,10 @@ void XRAY_gui::on_actionExport_settings_triggered()
 	listParameters.insert("PathReconstructionFramesPerSubdivision",QString::number(ui.framesperdivspinBox->value()));
 	listParameters.insert("DetectionOfEndPercentageThreshold",QString::number(ui.endthresholdspinBox->value()));
 	listParameters.insert("PlaneDimensions",QString::number(ui.planedimspinBox->value()));
+	listParameters.insert("CropLeft",QString::number(ui.lspinBox->value()));
+	listParameters.insert("CropRight",QString::number(ui.rspinBox->value()));
+	listParameters.insert("CropTop",QString::number(ui.tspinBox->value()));
+	listParameters.insert("CropBottom",QString::number(ui.bspinBox->value()));
 
 
 	OptionsLoader::writeXml(path,listParameters);
@@ -1006,6 +1056,10 @@ void XRAY_gui::on_actionImport_settings_triggered()
 	ui.framesperdivspinBox->setValue(listParameters["PathReconstructionFramesPerSubdivision"].toDouble());
 	ui.endthresholdspinBox->setValue(listParameters["DetectionOfEndPercentageThreshold"].toDouble());
 	ui.planedimspinBox->setValue(listParameters["PlaneDimensions"].toDouble());
+	ui.lspinBox->setValue(listParameters["CropL"].toInt());
+	ui.rspinBox->setValue(listParameters["CropR"].toInt());
+	ui.tspinBox->setValue(listParameters["CropT"].toInt());
+	ui.bspinBox->setValue(listParameters["CropB"].toInt());
 
 
 
@@ -1033,6 +1087,7 @@ void XRAY_gui::run()
 
 	if(getActiveCloud())
 	{
+		std::string volumecloudName=getActiveCloudName();
 
 	QThread * th=Skeletonize(getActiveVolume());
 
@@ -1056,27 +1111,49 @@ void XRAY_gui::run()
 	if(QString::fromStdString(getActiveCloudName()).contains("Path"))
 	{
 
-	auto pathCloud=getActiveCloud();
+		auto pathCloud=getActiveCloud();
 
-	fitCurve(getActiveCloud());
+		Wm5::BSplineCurve3d * curve = fitCurve(pathCloud);
 
-	pcl::PointCloud<pcl::PointXYZI>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZI>());
+		pcl::PointCloud<pcl::PointXYZI>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZI>());
 
-	std::vector<std::pair<double,double>> y_values;
+		std::vector<std::pair<double,double>> y_values;
 
-	secureThreadUpdate("Correction of the path center");
-	QCoreApplication::processEvents();
+		secureThreadUpdate("Correction of the path center");
+		QCoreApplication::processEvents();
 
-	skeleton->plans(NULL,"C:/test/",center_line,pathCloud->size(),curves.values().last(),y_values,ui.planedimspinBox->value(),false);
+		double endPositiononCurve=0;
 
-	QString name="Center Line"+QString::number(pointClouds.size());
-	pointClouds.insert(name,center_line);
-	addCloud(center_line,name);
-	addItemToTreeWidget(name,getActiveSkeletonName());
+		double meanW=0, meanH=0;
 
-	pathCloud=getActiveCloud();
+		skeleton->plans(NULL,"",center_line,pathCloud->size()/2,curve,y_values,ui.planedimspinBox->value(),ui.prethresholdspinBox->value(),(double)ui.endthresholdspinBox->value()/100,endPositiononCurve,meanW,meanH,true);
 
-	fitCurve(getActiveCloud());
+		QString name="Center Line "+QString::number(pointClouds.size());
+		pointClouds.insert(name,center_line);
+		addCloud(center_line,name,5,0.8);
+		addItemToTreeWidget(name,QString::fromStdString(volumecloudName));
+
+		pathCloud=getActiveCloud();
+
+		curve = fitCurve(pathCloud);
+
+		pcl::PointCloud<pcl::PointXYZI>::Ptr endLine(new pcl::PointCloud<pcl::PointXYZI>());
+
+		skeleton->projectBack(curve,endLine,ui.prethresholdspinBox->value(),ui.planedimspinBox->value());
+
+		name="Starting points "+QString::number(pointClouds.size());
+		pointClouds.insert(name,endLine);
+		addCloud(endLine,name,5,0.8);
+		addItemToTreeWidget(name,QString::fromStdString(volumecloudName));
+
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr endLine2(new pcl::PointCloud<pcl::PointXYZRGB>());
+		pcl::copyPointCloud(*endLine,*endLine2);
+		pcl::PolygonMesh::Ptr mesh = matVoxel::toPoly(endLine2);
+		meshes.insert(name,mesh.get());
+		viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
+
+
+		secureThreadUpdate("Mean height : "+QString::number(meanH)+" um Mean width : "+QString::number(meanW)+" um");
 
 	}
 

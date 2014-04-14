@@ -578,8 +578,9 @@ main(int argc, char** argv)
 
 		std::vector<std::pair<double,double>> y_values;
 
+		double pos=0,mean1=0,mean2=0;
 
-		test.plans(viewer.get(),path,center_line,path_cloud->size()/10,cur,y_values,200,true);
+		test.plans(viewer.get(),path,center_line,path_cloud->size()/10,cur,y_values,200,100,0.2,pos,mean1,mean2,true);
 
 		//viewer->addPolylineFromPolygonMesh(test.toPoly(test.center_line),"center_line");
 

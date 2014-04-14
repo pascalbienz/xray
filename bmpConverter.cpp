@@ -99,7 +99,7 @@ void imageVolumeLoader::loadDataSet( std::string path_directory, pcl::PointCloud
 		cout << p << "does not exist\n";
 }
 
-void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, byte * * voxels, int &w, int &h, int &d, int threshold, float pixSize, bool smoothing, int smoothingAmount )
+void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, byte * * voxels, int &w, int &h, int &d, int threshold, float pixSize, bool smoothing, int smoothingAmount , int cropL, int cropR, int cropT, int cropB)
 {
 
 	if(pathfiles.size()>0)
@@ -109,11 +109,13 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 
 	cv::Mat image = cv::imread(pathfiles.at(0));
 
-	(*voxels) = new byte[image.rows*image.cols*(pathfiles.size())];//new byte[image.rows*image.cols*(pathfiles.size())];
-
-	w=image.cols;
-	h=image.rows;
+	w=image.cols-cropL-cropR;
+	h=image.rows-cropT-cropB;
 	d = pathfiles.size();
+
+	(*voxels) = new byte[h*w*(pathfiles.size())];//new byte[image.rows*image.cols*(pathfiles.size())];
+
+	
 	
 
 
@@ -125,7 +127,7 @@ void imageVolumeLoader::loadDataSet( std::vector<std::string> pathfiles, pcl::Po
 	{
 
 			notify_("   " + pathfiles[it]);
-			processImage(pathfiles[it], pixSize, z, pointCloud,threshold,(*voxels)+count*image.rows*image.cols);
+			processImage(pathfiles[it], pixSize, z, pointCloud,threshold,(*voxels)+count*h*w,smoothing,smoothingAmount,cropL,cropR,cropT,cropB);
 			z += pixSize;
 			count++;
 		}
@@ -191,12 +193,16 @@ void imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr point
 
 
 
-void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, byte * voxels, bool smoothing, int smoothingAmount)
+void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, int threshold, byte * voxels, bool smoothing, int smoothingAmount, int cropL, int cropR, int cropT, int cropB)
 {
 
-	int width, height;
+	//int width, height;
 
 	cv::Mat image = cv::imread(pathBmp);
+
+	cv::Rect region(cropL, cropT, image.cols-cropL-cropR, image.rows-cropT-cropB);
+
+	image=image(region);
 
 	if (smoothing)
 	cv::GaussianBlur(image, image, cv::Size((smoothingAmount/2)*2+1, (smoothingAmount/2)*2+1), 0, 0);
@@ -229,11 +235,11 @@ void imageVolumeLoader::processImage(string pathBmp, float pixSize, float z, pcl
 	for (int i = 0; i < image.rows; i++)
 	{
 		uchar * p = image.ptr<uchar>(i);
-		for (int j = 0; j < image.cols*channels; j+=3)
+		for (int j = 0; j < (image.cols)*channels; j+=3)
 		{
 
 			//if (image.at<uchar>(i, j)>10)
-			if (p[j]>threshold)
+			if (p[j]>threshold) // to add background around the object : &&(i!=0&&i!=image.rows-1&&j!=0&&j!=image.cols-1))
 			{
 
 				pcl::PointXYZI basic_point;

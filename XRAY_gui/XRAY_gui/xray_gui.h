@@ -50,6 +50,7 @@ public :
 	std::vector<std::string> vec;
 	pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
 	float pixSize;
+	int cropL,cropR,cropT,cropB;
 
 };
 
@@ -137,11 +138,15 @@ public	slots: void on_toolButton_clicked();
 	void on_runpushButton_clicked();
 	QFutureWatcher<void> * loadVolumeFromListFiles();
 	QString getActiveSkeletonName();
-	void fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl);
+	Wm5::BSplineCurve3d * fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl);
 	void addItemToTreeWidget(QString itemName, QString parentName, bool afterSelect=true);
 	void on_prethresholdspinBox_valueChanged();
 	void on_gaussianspinBox_valueChanged();
 	void on_previewcheckBox_stateChanged(int i);
+	void on_lspinBox_valueChanged();
+	void on_rspinBox_valueChanged();
+	void on_tspinBox_valueChanged();
+	void on_bspinBox_valueChanged();
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

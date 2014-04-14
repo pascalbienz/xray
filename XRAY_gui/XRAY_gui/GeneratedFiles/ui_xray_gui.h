@@ -57,7 +57,17 @@ public:
     QWidget *tab_2;
     QVBoxLayout *verticalLayout_8;
     imageSelect *labelImage;
+    QHBoxLayout *horizontalLayout_8;
     QCheckBox *previewcheckBox;
+    QGridLayout *gridLayout_12;
+    QLabel *label_15;
+    QSpinBox *lspinBox;
+    QLabel *label_16;
+    QSpinBox *tspinBox;
+    QLabel *label_17;
+    QSpinBox *rspinBox;
+    QLabel *label_18;
+    QSpinBox *bspinBox;
     QLabel *namelabel_13;
     QSlider *horizontalSlider;
     QMenuBar *menuBar;
@@ -140,7 +150,7 @@ public:
     {
         if (XRAY_guiClass->objectName().isEmpty())
             XRAY_guiClass->setObjectName(QString::fromUtf8("XRAY_guiClass"));
-        XRAY_guiClass->resize(1152, 902);
+        XRAY_guiClass->resize(1164, 902);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -193,11 +203,90 @@ public:
 
         verticalLayout_8->addWidget(labelImage);
 
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setSpacing(6);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         previewcheckBox = new QCheckBox(tab_2);
         previewcheckBox->setObjectName(QString::fromUtf8("previewcheckBox"));
         previewcheckBox->setTristate(false);
 
-        verticalLayout_8->addWidget(previewcheckBox);
+        horizontalLayout_8->addWidget(previewcheckBox);
+
+        gridLayout_12 = new QGridLayout();
+        gridLayout_12->setSpacing(6);
+        gridLayout_12->setObjectName(QString::fromUtf8("gridLayout_12"));
+        label_15 = new QLabel(tab_2);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+
+        gridLayout_12->addWidget(label_15, 0, 0, 1, 1);
+
+        lspinBox = new QSpinBox(tab_2);
+        lspinBox->setObjectName(QString::fromUtf8("lspinBox"));
+        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(lspinBox->sizePolicy().hasHeightForWidth());
+        lspinBox->setSizePolicy(sizePolicy1);
+        lspinBox->setMinimumSize(QSize(22, 0));
+        lspinBox->setBaseSize(QSize(55, 0));
+        lspinBox->setMaximum(10000);
+        lspinBox->setSingleStep(20);
+
+        gridLayout_12->addWidget(lspinBox, 0, 1, 1, 1);
+
+        label_16 = new QLabel(tab_2);
+        label_16->setObjectName(QString::fromUtf8("label_16"));
+
+        gridLayout_12->addWidget(label_16, 0, 2, 1, 1);
+
+        tspinBox = new QSpinBox(tab_2);
+        tspinBox->setObjectName(QString::fromUtf8("tspinBox"));
+        sizePolicy1.setHeightForWidth(tspinBox->sizePolicy().hasHeightForWidth());
+        tspinBox->setSizePolicy(sizePolicy1);
+        tspinBox->setMinimumSize(QSize(22, 0));
+        tspinBox->setBaseSize(QSize(55, 0));
+        tspinBox->setMaximum(10000);
+        tspinBox->setSingleStep(20);
+
+        gridLayout_12->addWidget(tspinBox, 0, 3, 1, 1);
+
+        label_17 = new QLabel(tab_2);
+        label_17->setObjectName(QString::fromUtf8("label_17"));
+
+        gridLayout_12->addWidget(label_17, 0, 4, 1, 1);
+
+        rspinBox = new QSpinBox(tab_2);
+        rspinBox->setObjectName(QString::fromUtf8("rspinBox"));
+        sizePolicy1.setHeightForWidth(rspinBox->sizePolicy().hasHeightForWidth());
+        rspinBox->setSizePolicy(sizePolicy1);
+        rspinBox->setMinimumSize(QSize(22, 0));
+        rspinBox->setBaseSize(QSize(55, 0));
+        rspinBox->setMaximum(10000);
+        rspinBox->setSingleStep(20);
+
+        gridLayout_12->addWidget(rspinBox, 0, 5, 1, 1);
+
+        label_18 = new QLabel(tab_2);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
+
+        gridLayout_12->addWidget(label_18, 0, 6, 1, 1);
+
+        bspinBox = new QSpinBox(tab_2);
+        bspinBox->setObjectName(QString::fromUtf8("bspinBox"));
+        sizePolicy1.setHeightForWidth(bspinBox->sizePolicy().hasHeightForWidth());
+        bspinBox->setSizePolicy(sizePolicy1);
+        bspinBox->setMinimumSize(QSize(22, 0));
+        bspinBox->setBaseSize(QSize(55, 0));
+        bspinBox->setMaximum(10000);
+        bspinBox->setSingleStep(20);
+
+        gridLayout_12->addWidget(bspinBox, 0, 7, 1, 1);
+
+
+        horizontalLayout_8->addLayout(gridLayout_12);
+
+
+        verticalLayout_8->addLayout(horizontalLayout_8);
 
         namelabel_13 = new QLabel(tab_2);
         namelabel_13->setObjectName(QString::fromUtf8("namelabel_13"));
@@ -219,7 +308,7 @@ public:
         XRAY_guiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(XRAY_guiClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1152, 21));
+        menuBar->setGeometry(QRect(0, 0, 1164, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         XRAY_guiClass->setMenuBar(menuBar);
@@ -551,6 +640,7 @@ public:
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget_4);
         dockWidget_5 = new QDockWidget(XRAY_guiClass);
         dockWidget_5->setObjectName(QString::fromUtf8("dockWidget_5"));
+        dockWidget_5->setMinimumSize(QSize(89, 256));
         dockWidget_5->setFloating(false);
         dockWidget_5->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_2 = new QWidget();
@@ -561,6 +651,8 @@ public:
         verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
         textBrowser = new QTextBrowser(dockWidgetContents_2);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
+        textBrowser->setMinimumSize(QSize(0, 216));
+        textBrowser->setBaseSize(QSize(0, 172));
 
         verticalLayout_9->addWidget(textBrowser);
 
@@ -569,11 +661,11 @@ public:
         propertiesdockWidget = new QDockWidget(XRAY_guiClass);
         propertiesdockWidget->setObjectName(QString::fromUtf8("propertiesdockWidget"));
         propertiesdockWidget->setEnabled(false);
-        QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(propertiesdockWidget->sizePolicy().hasHeightForWidth());
-        propertiesdockWidget->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(propertiesdockWidget->sizePolicy().hasHeightForWidth());
+        propertiesdockWidget->setSizePolicy(sizePolicy2);
         propertiesdockWidget->setMaximumSize(QSize(300, 90));
         propertiesdockWidget->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_5 = new QWidget();
@@ -641,6 +733,10 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("XRAY_guiClass", "3D", 0, QApplication::UnicodeUTF8));
         labelImage->setText(QString());
         previewcheckBox->setText(QApplication::translate("XRAY_guiClass", "Preview preprocessing", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("XRAY_guiClass", "Left :", 0, QApplication::UnicodeUTF8));
+        label_16->setText(QApplication::translate("XRAY_guiClass", "Top :", 0, QApplication::UnicodeUTF8));
+        label_17->setText(QApplication::translate("XRAY_guiClass", "Right :", 0, QApplication::UnicodeUTF8));
+        label_18->setText(QApplication::translate("XRAY_guiClass", "Bottom :", 0, QApplication::UnicodeUTF8));
         namelabel_13->setText(QApplication::translate("XRAY_guiClass", "Image", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("XRAY_guiClass", "Images", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("XRAY_guiClass", "File", 0, QApplication::UnicodeUTF8));

@@ -1628,7 +1628,8 @@ float TriCubic(Point p, byte *volume, int xDim, int yDim, int zDim)
 			r[j] = 0;
 			for (i = 0; i < 4; i++)
 			{
-				r[j] += u[i] * *pv;
+				if(pv-volume<xDim*yDim*zDim)
+					r[j] += u[i] * *pv;
 				pv++;
 			}
 			q[k] += v[j] * r[j];
@@ -1711,12 +1712,15 @@ void matVoxel::computePlaneMat(cv::Mat & image, double length, Wm5::Vector3d &po
 			pos.y = cy;
 			pos.z = cz;
 
+			#pragma omp critical
+			{
 			if (getAt(vX, vY, vZ) > 0 && getAt(vX, vY, vZ) < w*h*d)
 				//p[a_2]=voxels[getAt(vX,vY,vZ)];
 				//p[a_2]=triLinear(cx,cy,cz);
 				p[a_2] = TriCubic(pos, voxels, w, h, d);
 			else
 				p[a_2] = 0;
+			}
 
 		}
 	}
@@ -1750,7 +1754,7 @@ void stopShow(std::string str)
 }
 
 
-void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, bool processImages)
+void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, int thresholdMeasure, double endPerThreshold, double &posEnd, double &meanW, double &meanH, bool processImages)
 {
 	/* ax + by + cz + d = 0*/
 
@@ -1760,13 +1764,14 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 	float angle=0;
 
-	
+	double meanWidth=0,meanHeight=0;
+	int accTotal=0;
 
 	for (int i = nbSampling; i >=0; i -= 1)
 	{
 	
-		if((nbSampling-i)%(nbSampling/9)==0)
-			notify_("Step "+boost::lexical_cast<std::string>(floor((double)(nbSampling-i)/nbSampling*10+0.1)+1));
+		if((i)%(nbSampling/9)==0)
+			notify_("Step "+boost::lexical_cast<std::string>(floor((double)(i)/nbSampling*10+0.1)+1));
 
 		/*
 			Retrieve position for the ith sample, and compute the tangent
@@ -1812,9 +1817,6 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 			pcl::PointCloud<pcl::PointXYZ>::Ptr cl(new pcl::PointCloud<pcl::PointXYZ>());
 
 			cl->points.push_back(pcl::PointXYZ(point[0] + length*ax1.x() / 2 + length*ax2.x() / 2, point[1] + length*ax1.y() / 2 + +length*ax2.y() / 2, point[2] + length*ax1.z() / 2 + length*ax2.z() / 2));
-			/*cl->points.push_back(pcl::PointXYZ(point.x + length*ax2.x() / 2, point.y + length*ax2.y() / 2, point.z + length*ax2.z() / 2));
-			cl->points.push_back(pcl::PointXYZ(point.x - length*ax1.x() / 2, point.y - length*ax1.y() / 2, point.z - length*ax1.z() / 2));
-			cl->points.push_back(pcl::PointXYZ(point.x - length*ax2.x() / 2, point.y - length*ax2.y() / 2, point.z - length*ax2.z() / 2));*/
 			cl->points.push_back(pcl::PointXYZ(point[0] + length*ax1.x() / 2 - length*ax2.x() / 2, point[1] + length*ax1.y() / 2 + -length*ax2.y() / 2, point[2] + length*ax1.z() / 2 - length*ax2.z() / 2));
 			cl->points.push_back(pcl::PointXYZ(point[0] - length*ax1.x() / 2 - length*ax2.x() / 2, point[1] - length*ax1.y() / 2 - +length*ax2.y() / 2, point[2] - length*ax1.z() / 2 - length*ax2.z() / 2));
 			cl->points.push_back(pcl::PointXYZ(point[0] - length*ax1.x() / 2 + length*ax2.x() / 2, point[1] - length*ax1.y() / 2 + +length*ax2.y() / 2, point[2] - length*ax1.z() / 2 + length*ax2.z() / 2));
@@ -1893,6 +1895,9 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 		
 		pca(image, center, pca_1, pca_2, e1, e2, threshold, contour_inter);
 
+		
+		
+
 		/*
 		CV PCA for ref
 
@@ -1926,45 +1931,74 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 			if(processImages)
 			{
 
-			/*
+					//cv::Mat imageCopy(image);
 
-			Showing edges, computed axis and center
+					/*cv::cvtColor(image, image, CV_GRAY2RGB);
 
-			*/
+					cv::circle(image,center,3,CV_RGB(255,0,0),1);
+					cv::line(image,center,center+pca_1*e1,CV_RGB(0,255,0));
+					cv::line(image,center,center+pca_2*e2,CV_RGB(0,0,255));
 
-			cv::cvtColor(image, image, CV_GRAY2RGB);
+					cv::drawContours(image,contour_list,-1,cv::Scalar(255,0,0));*/
 
-			cv::circle(image,center,3,CV_RGB(255,0,0),1);
-			cv::line(image,center,center+pca_1*e1,CV_RGB(0,255,0));
-			cv::line(image,center,center+pca_2*e2,CV_RGB(0,0,255));
-
-			cv::drawContours(image,contour_list,-1,cv::Scalar(255,0,0));
-
-			/*
+				/*
 		
-			Rotation and translation of the image
+				Rotation and translation of the image
 
-			*/
+				*/
 
-			//float angle = atan2(pca_1.y, pca_1.x);
-			angle = atan2(pca_1.y, pca_1.x);
-			cv::Mat rotation=cv::getRotationMatrix2D(center,atan2(pca_1.y,pca_1.x)/M_PI*180+90,1);
+				//float angle = atan2(pca_1.y, pca_1.x);
+				angle = atan2(pca_1.y, pca_1.x);
+				cv::Mat rotation=cv::getRotationMatrix2D(center,atan2(pca_1.y,pca_1.x)/M_PI*180+90,1);
 
-			cv::warpAffine(image,image,rotation,cv::Size(max(image.rows,image.cols),max(image.rows,image.cols)));
+				cv::warpAffine(image,image,rotation,cv::Size(max(image.rows,image.cols),max(image.rows,image.cols)));
 
-			cv::Mat translate(2,3,CV_32FC1);
+				cv::Mat translate(2,3,CV_32FC1);
 
-			translate.at<float>(0, 0) = 1;
-			translate.at<float>(1, 0) = 0;
-			translate.at<float>(0, 1) = 0;
-			translate.at<float>(1, 1) = 1;
-			translate.at<float>(0, 2) = -center.x+image.cols/2;
-			translate.at<float>(1, 2) = -center.y+image.rows/2;
+				translate.at<float>(0, 0) = 1;
+				translate.at<float>(1, 0) = 0;
+				translate.at<float>(0, 1) = 0;
+				translate.at<float>(1, 1) = 1;
+				translate.at<float>(0, 2) = -center.x+image.cols/2;
+				translate.at<float>(1, 2) = -center.y+image.rows/2;
 
-			cv::warpAffine(image, image, translate, cv::Size(max(image.rows, image.cols), max(image.rows, image.cols)));
+				cv::warpAffine(image, image, translate, cv::Size(max(image.rows, image.cols), max(image.rows, image.cols)));
 
-			if(path.compare("")!=0)
-			cv::imwrite(path + "/cross" + "/im_" + boost::lexical_cast<std::string>(i)+".bmp", image);
+				double wI=0,hI=0;
+
+				getWidthHeight(image, center, e1, e2,wI,hI,thresholdMeasure);
+
+				meanH=meanHeight;
+				meanW=meanWidth;
+
+				meanWidth*=accTotal;
+				meanHeight*=accTotal;
+
+				meanWidth+=wI;
+				meanHeight+=hI;
+
+				accTotal++;
+
+				meanWidth/=accTotal;
+				meanHeight/=accTotal;
+
+				posEnd=(double)(nbSampling-i)/nbSampling;
+
+				if((wI>(1+endPerThreshold)*meanWidth&&hI>(1+endPerThreshold)*meanHeight)&&accTotal>200) // at least a few iterations needed to prevent unexpected exit of the algorithm
+				{
+					
+					return;
+				}
+
+				/*
+
+				Showing edges, computed axis and center
+
+				*/
+							
+
+				if(path.compare("")!=0)
+				cv::imwrite(path + "/cross" + "/im_" + boost::lexical_cast<std::string>(i)+".bmp", image);
 
 
 			}
@@ -2001,19 +2035,129 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 	}
 
-	cout << cur->GetLength(0,1);
+	//cout << cur->GetLength(0,1);
 
 	//for (int x=0;x<length;x++)
 	//for (int y = 0; y < length; y++);
 }
 
-void matVoxel::projectBack(Wm5::BSplineCurve3d * cur)
+/*
+
+The skeleton stops before the actual start of the curve, the function projects the tangent vector in order to get the real start
+
+*/
+void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold, int length)
 {
 	Wm5::Vector3d tan;
-	Wm5::Vector3d point;
+	Wm5::Vector3d pointVoxel, point, oldpoint;
 	
-	tan = cur->GetTangent(1);
-	point = cur->GetPosition(1);
+	tan = -cur->GetTangent(0);
+	point = cur->GetPosition(0);
+
+	pcl::PointXYZI start(1);
+	start.x=point[0];
+	start.y=point[1];
+	start.z=point[2];
+
+	line->push_back(start);
+
+	oldpoint=point;
+	point+=tan;
+
+	pointVoxel=point;
+
+	pointVoxel[0] /=pixSize;
+	pointVoxel[1] /= pixSize;
+	pointVoxel[2] /= pixSize;
+
+	pointVoxel[0] += cogX;
+	pointVoxel[1] += cogY;
+	pointVoxel[2] += cogZ;
+
+	//tan/=pixSize;
+
+	cv::Mat image(length,length,CV_8UC1);
+
+	while(voxels[(int)(getAt(floor(pointVoxel[0]+0.5),floor(pointVoxel[1]+0.5),floor(pointVoxel[2]+0.5)))]>threshold)
+	{
+
+		//y_values.push_back(std::pair<double,double>(cur->GetLength(0,(double)i/nbSampling),cur->GetCurvature((double)i/nbSampling)));
+
+		double a=tan.X();
+		double b=tan.Y();
+		double c=tan.Z();
+
+
+		/*
+			Get orthonormal basis for the plane
+			(Origin at current position on the curve)
+		*/
+		Eigen::Vector3d normal(a, b, c);
+		normal.normalize();
+		Eigen::Vector3d ax1(normal.unitOrthogonal());//1, 0.5, _isnanf(-u / c)?1:-u/c);
+
+		ax1 /= ax1.norm();
+		Eigen::Vector3d ax2;
+		ax2 = normal.cross(ax1);
+
+
+		ax1 /= pixSize;
+		ax2 /= pixSize;
+
+
+		pointVoxel[0] += - ax1[0]*length / 2 - ax2[0]*length / 2;
+		pointVoxel[1] += - ax1[1]*length / 2 - ax2[1]*length / 2;
+		pointVoxel[2] += - ax1[2]*length / 2 - ax2[2]*length / 2;
+
+
+		
+
+		computePlaneMat(image, length, pointVoxel, ax1, ax2);
+
+		cv::threshold(image,image,threshold,255,CV_THRESH_BINARY);
+
+		std::vector<std::vector<cv::Point>> contour_list;
+		cv::findContours(image, contour_list, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+
+		cv::Point2d center, pca_1, pca_2;
+		double e1, e2;
+		std::vector<cv::Point> contour_inter;
+		retrieveCorrectCenter(contour_inter,contour_list,length/2,length/2);
+		if(contour_inter.size()>0)
+		{
+			pca(image,center,pca_1,pca_2,e1,e2,threshold,contour_inter);
+		}
+
+		pcl::PointXYZI point_center;
+		
+		point[0] += (center.x - (double)image.cols / 2)*pixSize*(ax2.x());
+		point[1] += (center.x - (double)image.cols / 2)*pixSize*(ax2.y());
+		point[2] += (center.x - (double)image.cols / 2)*pixSize*(ax2.z());
+		point[0] += (center.y - (double)image.rows / 2)*pixSize*(ax1.x());
+		point[1] += (center.y - (double)image.rows / 2)*pixSize*(ax1.y());
+		point[2] += (center.y - (double)image.rows / 2)*pixSize*(ax1.z());
+
+		point_center.x=point[0];point_center.y=point[1];point_center.z=point[2];
+
+		line->push_back(point_center);
+
+		tan=point-oldpoint;
+		pointVoxel[0]=(point[0]/pixSize+cogX);
+		pointVoxel[1]=(point[1]/pixSize+cogY);
+		pointVoxel[2]=(point[2]/pixSize+cogZ);
+
+		oldpoint=point;
+		point+=tan;
+
+	}
+
+	pcl::PointXYZI end(200);
+	end.x=(point[0]-cogX)*pixSize;
+	end.y=(point[1]-cogY)*pixSize;
+	end.z=(point[2]-cogZ)*pixSize;
+
+	
+	line->push_back(end);
 }
 
 void matVoxel::pca(cv::Mat image, cv::Point2d &center, cv::Point2d &vec1, cv::Point2d &vec2, double &e1, double &e2, int threshold, std::vector<cv::Point> contour)
@@ -2185,6 +2329,49 @@ void matVoxel::vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointClou
 
 		pointCloud->points.push_back(basic_point);
 	}
+}
+
+void matVoxel::getWidthHeight( cv::Mat param1, cv::Point2d center, double e1, double e2, double &wI, double &hI , int threshold)
+{
+	int centerX=center.x;
+	int centerY=center.y;
+
+int x1=center.x;
+	while(x1<param1.cols)
+	{
+		if(*param1.ptr<uchar>(centerY,x1)<threshold)
+			break;
+		x1++;
+	}
+
+int x2=center.x;
+
+	while(x2>0)
+	{
+		if(*param1.ptr<uchar>(centerY,x2)<threshold)
+			break;
+		x2--;
+	}
+
+	int y1=center.y;
+	while(y1<param1.rows)
+	{
+		if(*param1.ptr<uchar>(y1,centerX)<threshold)
+			break;
+		y1++;
+	}
+
+	int y2=center.y;
+
+	while(y2>0)
+	{
+		if(*param1.ptr<uchar>(y2,centerX)<threshold)
+			break;
+		y2--;
+	}
+
+	wI=x1-x2;
+	hI=y1-y2;
 }
 
 
