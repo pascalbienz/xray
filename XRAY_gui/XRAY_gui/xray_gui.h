@@ -99,6 +99,8 @@ public:
 	void fitImage();
 	void updateNotify(std::string message);
 
+	static double resultLength,resultH,resultW;
+
 public	slots: void on_toolButton_clicked();
 
 	void on_horizontalSlider_valueChanged();
@@ -130,6 +132,9 @@ public	slots: void on_toolButton_clicked();
 	void on_cleanPathpushButton_clicked();
 	void on_splinepushButton_4_clicked();
 	void on_actionExport_settings_triggered();
+
+	void saveSettings( QString path, bool saveResults=false );
+
 	void on_reconstruct_pushButton_clicked();
 	void loadDir(QString dir);
 	void on_actionImport_settings_triggered();
@@ -152,6 +157,7 @@ public	slots: void on_toolButton_clicked();
 	Wm5::BSplineCurve3d * getActiveCurve();
 	QString getActiveCurveName();
 	QTreeWidgetItem* getParentItem(QString name);
+	void on_actionExport_results_triggered();
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

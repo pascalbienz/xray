@@ -292,6 +292,16 @@ int list6Neighbor[] =
 //int direction
 
 
+/*
+ For multi-threading, it is crucial to make sure memory accessed by threads are
+	exclusive when writing. The tmp structure just serves as a temporary
+	reusable holder for the data, preventing re-allocation.
+	The hardcoded 30 is here the max number of threads that can work
+	simulataneously. In this case, parallelization is
+	most efficient when the number of threads is equal to
+	the number of cores, i.e. 4-8.
+*/
+
 struct tmp
 {
 
@@ -540,6 +550,8 @@ bool matVoxel::topConnect26(int x, int y, int z)
 
 /*
 Checking connectivity of 6-adjacent background neighbours within the set of 18-adjacent background vox
+Comments below are the unoptimized version of the lines following, for reference.
+(i.e. not thread-safe, less efficient data structure, unnecessary memory allocation )
 */
 bool matVoxel::topConnect6(int x, int y, int z)
 {
@@ -929,7 +941,10 @@ void matVoxel::skeletonize(byte * voxels, int w, int h, int d)
 
 }
 
-
+/*
+ The algorithm for skeletonization
+ Parallelized with openmp
+*/
 void matVoxel::algo2()
 {
 	generateSetOfPossibleDirections();
@@ -1103,6 +1118,11 @@ void matVoxel::algo2()
 	
 }
 
+/*
+For reference only, this is the first algorithm for skeletonization, that
+works by template matching of voxels to find simple points. It could
+theoretically work well with parallelization
+*/
 void matVoxel::algo()
 {
 	std::vector<int> adjacenttobackground;
@@ -1235,7 +1255,10 @@ float distCompSq(float u1, float u2, float u3, float v1, float v2, float v3)
 */
 bool sortDist(int i, int j) { return ::distCompSq(getX(i), getY(i), getZ(i), cogX, cogY, cogZ)>::distCompSq(getX(j), getY(j), getZ(j), cogX, cogY, cogZ); }
 
-
+/*
+Simple computation of the center of gravity, using voxel gray value as a weighting
+factor
+*/
 void matVoxel::cog()
 {
 
@@ -1337,7 +1360,7 @@ end points or tail points that are incorrect. The idea is to compute the longest
 from the end of the spiral. This is retrieved for now by computing the furthest endpoint of the spiral to the center.
 That should correspond to it, while a more robust approach has to be found. (It could be possible to have a branch)
 */
-void matVoxel::findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud)
+int matVoxel::findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>* path_cloud)
 {
 
 	std::vector<int> p;
@@ -1411,6 +1434,9 @@ void matVoxel::findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path
 
 	//path_cloud.reset(new pcl::PointCloud<pcl::PointXYZI>());
 
+	int r=::visited[c];
+
+	if(path_cloud)
 	while (prev[c] != -1)
 	{
 		pcl::PointXYZI basic_point;
@@ -1425,6 +1451,7 @@ void matVoxel::findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path
 	}
 
 	
+	return ::visited[c];
 
 }
 
@@ -1762,6 +1789,24 @@ double matVoxel::getLength(Wm5::BSplineCurve3d * curve, int nbSampling)
 
 }
 
+double matVoxel::getLength(pcl::PointCloud<pcl::PointXYZI>::Ptr cl)
+{
+	
+	double acc=0;
+
+	for (int i = 0; i < cl->size()-1; i++)
+	{
+		double x=cl->points[i].x-cl->points[i+1].x;
+		double y=cl->points[i].y-cl->points[i+1].y;
+		double z=cl->points[i].z-cl->points[i+1].z;
+		double d=std::sqrt(x*x+y*y+z*z);
+		acc+=d;
+	}
+
+	return acc;
+
+}
+
 void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, int thresholdMeasure, double endPerThreshold, double &posEnd, double &meanW, double &meanH, bool processImages)
 {
 	/* ax + by + cz + d = 0*/
@@ -1943,38 +1988,26 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 			if(processImages)
 			{
 
-					//cv::Mat imageCopy(image);
+					cv::Mat imageCopy(image);
 
-					/*cv::cvtColor(image, image, CV_GRAY2RGB);
+					cv::cvtColor(imageCopy, image, CV_GRAY2RGB);
 
-					cv::circle(image,center,3,CV_RGB(255,0,0),1);
-					cv::line(image,center,center+pca_1*e1,CV_RGB(0,255,0));
-					cv::line(image,center,center+pca_2*e2,CV_RGB(0,0,255));
+					cv::circle(imageCopy,center,3,CV_RGB(255,0,0),1);
+					cv::line(imageCopy,center,center+pca_1*e1,CV_RGB(0,255,0));
+					cv::line(imageCopy,center,center+pca_2*e2,CV_RGB(0,0,255));
 
-					cv::drawContours(image,contour_list,-1,cv::Scalar(255,0,0));*/
+					cv::drawContours(imageCopy,contour_list,-1,cv::Scalar(255,0,0));
 
-				/*
-		
+				
+		/*
 				Rotation and translation of the image
 
 				*/
 
-				//float angle = atan2(pca_1.y, pca_1.x);
-				angle = atan2(pca_1.y, pca_1.x);
-				cv::Mat rotation=cv::getRotationMatrix2D(center,atan2(pca_1.y,pca_1.x)/M_PI*180+90,1);
+				affineTransform(image,angle, pca_1, center);
 
-				cv::warpAffine(image,image,rotation,cv::Size(max(image.rows,image.cols),max(image.rows,image.cols)));
+				affineTransform(imageCopy,angle, pca_1, center);
 
-				cv::Mat translate(2,3,CV_32FC1);
-
-				translate.at<float>(0, 0) = 1;
-				translate.at<float>(1, 0) = 0;
-				translate.at<float>(0, 1) = 0;
-				translate.at<float>(1, 1) = 1;
-				translate.at<float>(0, 2) = -center.x+image.cols/2;
-				translate.at<float>(1, 2) = -center.y+image.rows/2;
-
-				cv::warpAffine(image, image, translate, cv::Size(max(image.rows, image.cols), max(image.rows, image.cols)));
 
 				double wI=0,hI=0;
 
@@ -2010,7 +2043,7 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 							
 
 				if(path.compare("")!=0)
-				cv::imwrite(path + "/cross" + "/im_" + boost::lexical_cast<std::string>(i)+".bmp", image);
+				cv::imwrite(path + "/cross" + "/im_" + boost::lexical_cast<std::string>(i)+".bmp", imageCopy);
 
 
 			}
@@ -2057,7 +2090,7 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 The skeleton stops before the actual start of the curve, the function projects the tangent vector in order to get the real start
 
-Should be fixed (wrong path)
+Should be fixed (wrong path taken)
 
 */
 void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold, int length)
@@ -2293,6 +2326,14 @@ void matVoxel::pca(cv::Mat image, cv::Point2d &center, cv::Point2d &vec1, cv::Po
 	e1=solveEigenV.eigenvalues()[0].real();
 	e2=solveEigenV.eigenvalues()[1].real();
 
+
+	if(e2>e1)
+	{
+		auto v=vec1;
+		vec1=vec2;
+		vec2=v;
+	}
+
 }
 
 pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud)
@@ -2388,6 +2429,11 @@ void matVoxel::vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointClou
 	}
 }
 
+
+/*
+A simple way to compute an approximation of the height and width of the object in the center of the image,
+along axis x and y
+*/
 void matVoxel::getWidthHeight( cv::Mat param1, cv::Point2d center, double e1, double e2, double &wI, double &hI , int threshold)
 {
 	int centerX=center.x;
@@ -2429,6 +2475,27 @@ int x2=center.x;
 
 	wI=x1-x2;
 	hI=y1-y2;
+}
+
+
+void matVoxel::affineTransform(cv::Mat image, float angle, cv::Point2d &pca_1, cv::Point2d &center )
+{
+	//float angle = atan2(pca_1.y, pca_1.x);
+	angle = atan2(pca_1.y, pca_1.x);
+	cv::Mat rotation=cv::getRotationMatrix2D(center,atan2(pca_1.y,pca_1.x)/M_PI*180+90,1);
+
+	cv::warpAffine(image,image,rotation,cv::Size(max(image.rows,image.cols),max(image.rows,image.cols)));
+
+	cv::Mat translate(2,3,CV_32FC1);
+
+	translate.at<float>(0, 0) = 1;
+	translate.at<float>(1, 0) = 0;
+	translate.at<float>(0, 1) = 0;
+	translate.at<float>(1, 1) = 1;
+	translate.at<float>(0, 2) = -center.x+image.cols/2;
+	translate.at<float>(1, 2) = -center.y+image.rows/2;
+
+	cv::warpAffine(image, image, translate, cv::Size(max(image.rows, image.cols), max(image.rows, image.cols)));	
 }
 
 

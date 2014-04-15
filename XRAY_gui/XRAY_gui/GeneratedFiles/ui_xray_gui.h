@@ -48,6 +48,7 @@ class Ui_XRAY_guiClass
 public:
     QAction *actionImport_settings;
     QAction *actionExport_settings;
+    QAction *actionExport_results;
     QWidget *centralWidget;
     QGridLayout *gridLayout_3;
     QTabWidget *tabWidget;
@@ -164,6 +165,8 @@ public:
         actionImport_settings->setObjectName(QString::fromUtf8("actionImport_settings"));
         actionExport_settings = new QAction(XRAY_guiClass);
         actionExport_settings->setObjectName(QString::fromUtf8("actionExport_settings"));
+        actionExport_results = new QAction(XRAY_guiClass);
+        actionExport_results->setObjectName(QString::fromUtf8("actionExport_results"));
         centralWidget = new QWidget(XRAY_guiClass);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout_3 = new QGridLayout(centralWidget);
@@ -640,7 +643,7 @@ public:
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget_4);
         dockWidget_5 = new QDockWidget(XRAY_guiClass);
         dockWidget_5->setObjectName(QString::fromUtf8("dockWidget_5"));
-        dockWidget_5->setMinimumSize(QSize(89, 0));
+        dockWidget_5->setMinimumSize(QSize(0, 2));
         dockWidget_5->setFloating(false);
         dockWidget_5->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_2 = new QWidget();
@@ -716,6 +719,7 @@ public:
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionImport_settings);
         menuFile->addAction(actionExport_settings);
+        menuFile->addAction(actionExport_results);
 
         retranslateUi(XRAY_guiClass);
 
@@ -730,6 +734,7 @@ public:
         XRAY_guiClass->setWindowTitle(QApplication::translate("XRAY_guiClass", "XRAY Project", 0, QApplication::UnicodeUTF8));
         actionImport_settings->setText(QApplication::translate("XRAY_guiClass", "Import settings", 0, QApplication::UnicodeUTF8));
         actionExport_settings->setText(QApplication::translate("XRAY_guiClass", "Export settings", 0, QApplication::UnicodeUTF8));
+        actionExport_results->setText(QApplication::translate("XRAY_guiClass", "Export results", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("XRAY_guiClass", "3D", 0, QApplication::UnicodeUTF8));
         labelImage->setText(QString());
         previewcheckBox->setText(QApplication::translate("XRAY_guiClass", "Preview preprocessing", 0, QApplication::UnicodeUTF8));

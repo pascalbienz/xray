@@ -286,6 +286,7 @@
     </property>
     <addaction name="actionImport_settings"/>
     <addaction name="actionExport_settings"/>
+    <addaction name="actionExport_results"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -691,8 +692,8 @@
   <widget class="QDockWidget" name="dockWidget_5">
    <property name="minimumSize">
     <size>
-     <width>89</width>
-     <height>0</height>
+     <width>0</width>
+     <height>2</height>
     </size>
    </property>
    <property name="floating">
@@ -808,6 +809,11 @@
   <action name="actionExport_settings">
    <property name="text">
     <string>Export settings</string>
+   </property>
+  </action>
+  <action name="actionExport_results">
+   <property name="text">
+    <string>Export results</string>
    </property>
   </action>
  </widget>

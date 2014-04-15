@@ -64,7 +64,7 @@ public:
 	//void matVoxel::isolatePoints();
 	void isolatePoints(std::vector<int> &markers_endpoints);
 	//void matVoxel::findPath();
-	void findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud);
+	int findPath(int startIndex,pcl::PointCloud<pcl::PointXYZI>* path_cloud);
 	void matVoxel::algo();
 	void matVoxel::algo2();
 
@@ -73,6 +73,8 @@ public:
 	void vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec);
 	
 	void matVoxel::plans(pcl::visualization::PCLVisualizer* viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, int thresholdMeasure, double endPerThreshold, double &posEnd, double &meanW, double &meanH, bool processImages=false);
+
+	void affineTransform(cv::Mat image, float angle, cv::Point2d &pca_1, cv::Point2d &center );
 
 	void computePlaneMat(cv::Mat & image, double length, Wm5::Vector3d &point, Eigen::Vector3d &ax1, Eigen::Vector3d &ax2 );
 	
@@ -89,6 +91,7 @@ public:
 	void retrieveCorrectCenter(std::vector<cv::Point> &contour_inter, std::vector<std::vector<cv::Point>> &contour_list, float centerX, float centerY);
 	void getWidthHeight( cv::Mat param1, cv::Point2d center, double e1, double e2, double &wI, double &hI , int threshold);
 	static	double getLength(Wm5::BSplineCurve3d * curve, int nbSampling);
+	static double getLength(pcl::PointCloud<pcl::PointXYZI>::Ptr cl);
 	bool init;
 
 	

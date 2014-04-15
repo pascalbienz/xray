@@ -924,7 +924,22 @@ void XRAY_gui::pruning(matVoxel * skeleton_)
 
 		pcl::PointCloud<pcl::PointXYZI>::Ptr longestShortestPathCloud(new pcl::PointCloud<pcl::PointXYZI>());
 
-		skeleton_->findPath(endpoints_indices.at(0),longestShortestPathCloud);
+		int max_Index,max_Dist=0;
+
+		for(int i=0;i<endpoints_indices.size()&i<050;i++)
+		{
+			
+		int v=skeleton_->findPath(endpoints_indices.at(i),NULL);
+
+		if(v>max_Dist)
+		{
+			max_Index=i;
+			max_Dist=v;
+		}
+
+		}
+
+		skeleton_->findPath(endpoints_indices.at(max_Index),longestShortestPathCloud.get());
 
 		QString name="Path cloud "+QString::number(pointClouds.size());
 
@@ -1009,30 +1024,8 @@ void XRAY_gui::on_actionExport_settings_triggered()
 	QString path=QFileDialog::getSaveFileName(this, tr("Save settings"),
 		"","",&QString("*.xml"));
 
-	QMap<QString,QString> listParameters;
+	saveSettings(path);
 
-
-	listParameters.insert("Path",ui.lineEdit->text());
-	if(listFiles&&listFiles->rowCount()>0)
-	{
-		listParameters.insert("FirstImage",listFiles->stringList().at(0));
-		listParameters.insert("LastImage",listFiles->stringList().last());
-	}
-	listParameters.insert("PixSize",QString::number(ui.pixSizedoubleSpinBox->value()));
-	listParameters.insert("PreThresholding",QString::number(ui.prethresholdspinBox->value()));
-	listParameters.insert("GaussianEdgeRefine",QString::number(ui.gaussianspinBox->value()));
-	listParameters.insert("PathSmoothingOrder",QString::number(ui.orderspinBox->value()));
-	listParameters.insert("PathReconstructionSubdivisions",QString::number(ui.subdividespinBox->value()));
-	listParameters.insert("PathReconstructionFramesPerSubdivision",QString::number(ui.framesperdivspinBox->value()));
-	listParameters.insert("DetectionOfEndPercentageThreshold",QString::number(ui.endthresholdspinBox->value()));
-	listParameters.insert("PlaneDimensions",QString::number(ui.planedimspinBox->value()));
-	listParameters.insert("CropLeft",QString::number(ui.lspinBox->value()));
-	listParameters.insert("CropRight",QString::number(ui.rspinBox->value()));
-	listParameters.insert("CropTop",QString::number(ui.tspinBox->value()));
-	listParameters.insert("CropBottom",QString::number(ui.bspinBox->value()));
-
-
-	OptionsLoader::writeXml(path,listParameters);
 }
 
 void XRAY_gui::on_actionImport_settings_triggered()
@@ -1152,7 +1145,7 @@ void XRAY_gui::reconstructPath(matVoxel * skeleton, Wm5::BSplineCurve3d * curve,
 
 	double meanW=0, meanH=0;
 
-	skeleton->plans(viewer,"C:/test/",center_line,nbSampling,curve,y_values,ui.planedimspinBox->value(),ui.prethresholdspinBox->value(),(double)ui.endthresholdspinBox->value()/100,endPositiononCurve,meanW,meanH,true);
+	skeleton->plans(NULL,"C:/test/",center_line,nbSampling,curve,y_values,ui.planedimspinBox->value(),ui.prethresholdspinBox->value(),(double)ui.endthresholdspinBox->value()/100,endPositiononCurve,meanW,meanH,true);
 
 	QString name="Center Line "+QString::number(pointClouds.size());
 	pointClouds.insert(name,center_line);
@@ -1187,11 +1180,21 @@ void XRAY_gui::reconstructPath(matVoxel * skeleton, Wm5::BSplineCurve3d * curve,
 
 	double originalSpline=curve->GetLength(0,1)-curve->GetLength(endPositiononCurve,1)+d;
 
-	secureThreadUpdate("Length : "+QString::number(curve->GetLength(0,1)-curve->GetLength(endPositiononCurve,1)+d)+" um");
+	/*secureThreadUpdate("Length : "+QString::number(curve->GetLength(0,1)-curve->GetLength(endPositiononCurve,1)+d)+" um");
 
-	secureThreadUpdate("Length : "+QString::number(curveCorrected->GetLength(curveCorrected->GetMinTime(),curveCorrected->GetMaxTime()))+" um");
+	secureThreadUpdate("Length : "+QString::number(curveCorrected->GetLength(curveCorrected->GetMinTime(),curveCorrected->GetMaxTime()))+" um");*/
 
-	secureThreadUpdate("Length : "+QString::number(matVoxel::getLength(curveCorrected,100000))+" um");
+
+	double simpleIntegration=matVoxel::getLength(center_line)+d;
+	double splineIntegration=matVoxel::getLength(curveCorrected,100000)+d;
+
+	secureThreadUpdate("Length : "+QString::number(simpleIntegration)+" um");
+
+	secureThreadUpdate("Length : "+QString::number(splineIntegration)+" um");
+
+
+
+	resultLength=splineIntegration;
 
 }
 
@@ -1223,6 +1226,55 @@ void XRAY_gui::on_reconstruct_pushButton_clicked()
 	}
 
 	}
+}
+
+
+void XRAY_gui::on_actionExport_results_triggered()
+{
+	QString path=QFileDialog::getSaveFileName(this, tr("Save settings"),
+		"","",&QString("*.xml"));
+
+	saveSettings(path);
+}
+
+double XRAY_gui::resultLength,XRAY_gui::resultH,XRAY_gui::resultW;
+
+void XRAY_gui::saveSettings( QString path, bool saveResults )
+{
+	QMap<QString,QString> listParameters;
+
+
+	listParameters.insert("Path",ui.lineEdit->text());
+	if(listFiles&&listFiles->rowCount()>0)
+	{
+		listParameters.insert("FirstImage",listFiles->stringList().at(0));
+		listParameters.insert("LastImage",listFiles->stringList().last());
+	}
+	listParameters.insert("PixSize",QString::number(ui.pixSizedoubleSpinBox->value()));
+	listParameters.insert("PreThresholding",QString::number(ui.prethresholdspinBox->value()));
+	listParameters.insert("GaussianEdgeRefine",QString::number(ui.gaussianspinBox->value()));
+	listParameters.insert("PathSmoothingOrder",QString::number(ui.orderspinBox->value()));
+	listParameters.insert("PathReconstructionSubdivisions",QString::number(ui.subdividespinBox->value()));
+	listParameters.insert("PathReconstructionFramesPerSubdivision",QString::number(ui.framesperdivspinBox->value()));
+	listParameters.insert("DetectionOfEndPercentageThreshold",QString::number(ui.endthresholdspinBox->value()));
+	listParameters.insert("PlaneDimensions",QString::number(ui.planedimspinBox->value()));
+	listParameters.insert("CropLeft",QString::number(ui.lspinBox->value()));
+	listParameters.insert("CropRight",QString::number(ui.rspinBox->value()));
+	listParameters.insert("CropTop",QString::number(ui.tspinBox->value()));
+	listParameters.insert("CropBottom",QString::number(ui.bspinBox->value()));
+
+
+	if(saveResults)
+	{
+
+		listParameters.insert("Result : length",QString::number(resultLength));
+		listParameters.insert("Result : H",QString::number(resultH));
+		listParameters.insert("Result : W",QString::number(resultW));
+
+	}
+
+
+	OptionsLoader::writeXml(path,listParameters);
 }
 
 /*void XRAY_gui::correctCenterLine()

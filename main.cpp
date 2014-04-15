@@ -517,7 +517,7 @@ main(int argc, char** argv)
 
 		pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud(new pcl::PointCloud<pcl::PointXYZI>);
 
-		::test.findPath(markers_endpoints.at(0),path_cloud);
+		::test.findPath(markers_endpoints.at(0),path_cloud.get());
 
 		pcl::PointCloud<pcl::PointXYZI>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZI>);
 
