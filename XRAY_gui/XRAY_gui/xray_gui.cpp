@@ -26,7 +26,7 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	ui.setupUi(this);
-	
+
 
 	labelStatus = new QLabel("Message");
 	statusBar()->addWidget(labelStatus);
@@ -57,7 +57,7 @@ XRAY_gui::XRAY_gui(QWidget *parent, Qt::WFlags flags)
 	imageVolumeLoader::observer_to=this;
 
 	viewer = new pcl::visualization::PCLVisualizer();
-	
+
 	ui.qvtkWidget->SetRenderWindow(viewer->getRenderWindow());
 
 	ui.treeWidget->expandAll();
@@ -85,7 +85,7 @@ inline int findNumberPart(const QString& sIn)
 {
 	QString s = "";
 	int i = sIn.length();
-	
+
 	bool stop=false;
 
 	while (--i >= 0)
@@ -97,11 +97,11 @@ inline int findNumberPart(const QString& sIn)
 				break;
 		else
 		{
-				s = sIn[i]+s;
-				stop=true;
+			s = sIn[i]+s;
+			stop=true;
 		}
-		
-		
+
+
 	}
 	if (s == "")
 		return -1;
@@ -115,7 +115,7 @@ bool naturalSortCallback(const QString& s1, const QString& s2)
 	if(idx1==-1||idx2==-1)
 		return s1.compare(s2);
 	else
-	return (idx1 < idx2);
+		return (idx1 < idx2);
 }
 
 QString lastDir="";
@@ -124,9 +124,9 @@ void XRAY_gui::on_toolButton_clicked()
 {
 
 	QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                             lastDir,
-                                             QFileDialog::ShowDirsOnly
-                                             | QFileDialog::DontResolveSymlinks);
+		lastDir,
+		QFileDialog::ShowDirsOnly
+		| QFileDialog::DontResolveSymlinks);
 
 	lastDir=dir;
 
@@ -170,7 +170,7 @@ void XRAY_gui::deleteItem()
 	if(i!=-1)
 	listFiles->removeRow(i);*/
 
-	
+
 	while(ui.listView->selectionModel()->selectedRows().count()>0)
 		listFiles->removeRow(ui.listView->selectionModel()->selectedRows().at(0).row());
 
@@ -236,22 +236,22 @@ void XRAY_gui::showImage(int i)
 
 		if(ui.previewcheckBox->checkState()==Qt::Checked)
 		{
-		cv::Mat image_ = cv::imread(getFile(i).toStdString());
+			cv::Mat image_ = cv::imread(getFile(i).toStdString());
 
-		image_.convertTo(image_,CV_8UC3);
+			image_.convertTo(image_,CV_8UC3);
 
-		cv::threshold(image_,image_,ui.prethresholdspinBox->value(),255,0);
+			cv::threshold(image_,image_,ui.prethresholdspinBox->value(),255,0);
 
-		if (ui.gaussianspinBox->value()>0)
-			cv::GaussianBlur(image_, image_, cv::Size((ui.gaussianspinBox->value()/2)*2+1, (ui.gaussianspinBox->value()/2)*2+1), 0, 0);
+			if (ui.gaussianspinBox->value()>0)
+				cv::GaussianBlur(image_, image_, cv::Size((ui.gaussianspinBox->value()/2)*2+1, (ui.gaussianspinBox->value()/2)*2+1), 0, 0);
 
 
-		int left=ui.lspinBox->value();
-		int top=ui.tspinBox->value();
-		int width=image_.cols-left-ui.rspinBox->value();
-		int height=image_.rows-top-ui.bspinBox->value();
+			int left=ui.lspinBox->value();
+			int top=ui.tspinBox->value();
+			int width=image_.cols-left-ui.rspinBox->value();
+			int height=image_.rows-top-ui.bspinBox->value();
 
-		cv::rectangle(image_,cv::Rect(left,top,width,height),CV_RGB(100,200,230),1);
+			cv::rectangle(image_,cv::Rect(left,top,width,height),CV_RGB(100,200,230),1);
 
 			image=QPixmap::fromImage(QImage(image_.data,image_.cols,image_.rows,QImage::Format_RGB888));
 		}
@@ -283,13 +283,13 @@ void XRAY_gui::fitImage()
 	if(ui.labelImage->pixmap())
 	{
 
-	int w=ui.labelImage->size().width();
-	int h=ui.labelImage->size().height();
+		int w=ui.labelImage->size().width();
+		int h=ui.labelImage->size().height();
 
-	w=std::min(image.width(),std::min(w,h));
-	h=w;
+		w=std::min(image.width(),std::min(w,h));
+		h=w;
 
-	ui.labelImage->setPixmap(image.scaled(w,h,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+		ui.labelImage->setPixmap(image.scaled(w,h,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 
 	}
 
@@ -314,16 +314,16 @@ void XRAY_gui::itemcurrentChanged ( const QModelIndex & current)
 
 /*class ThreadLoader : public QThread
 {
-	Q_OBJECT
+Q_OBJECT
 
 protected:
-	void run()
-	{
+void run()
+{
 
-	}
+}
 
 signals:
-	void finished();
+void finished();
 };*/
 
 
@@ -331,7 +331,7 @@ signals:
 void XRAY_gui::on_loadVolumePushButton_clicked()
 {
 
-	
+
 	loadVolumeFromListFiles();
 
 }
@@ -401,7 +401,7 @@ void XRAY_gui::startLoading(LoadingParam &param)
 
 	imageVolumeLoader::correctCenter(param.pointCloud, (float)(param.matrix->w) / 2*param.matrix->pixSize, (float)(param.matrix->h) / 2*param.matrix->pixSize, (float)(param.matrix->d) / 2*param.matrix->pixSize, cogX*param.matrix->pixSize, cogY*param.matrix->pixSize, cogZ*param.matrix->pixSize);
 
-	
+
 }
 
 void XRAY_gui::handleLoading()
@@ -413,7 +413,7 @@ void XRAY_gui::handleLoading()
 	enableInterface(true);
 
 	addCloud(parameters->pointCloud, name);
-	
+
 	volumes.insert(name,parameters->matrix);
 
 	pointClouds.insert(name,parameters->pointCloud);//static_cast<void*>(parameters->pointCloud.get()));
@@ -422,8 +422,8 @@ void XRAY_gui::handleLoading()
 
 	if (item.size() > 0)
 	{
-	
-		auto nitem=new QTreeWidgetItem(QStringList(name));
+
+	auto nitem=new QTreeWidgetItem(QStringList(name));
 	item.at(0)->addChild(nitem);
 	ui.treeWidget->clearSelection();
 	ui.treeWidget->setItemSelected(nitem,true);
@@ -440,8 +440,8 @@ void XRAY_gui::handleLoading()
 	//viewer->spin();
 	//viewer->spinOnce(1,true);
 
-	
-	
+
+
 }
 
 
@@ -451,7 +451,7 @@ void XRAY_gui::addCloud( pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, QStrin
 	viewer->addPointCloud<pcl::PointXYZI>((pcl::PointCloud<pcl::PointXYZI>::ConstPtr)pointCloud,handler,name.toStdString());
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, name.toStdString());
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, opacity, name.toStdString());
-	
+
 }
 
 void XRAY_gui::addCloud( pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud, QString &name , float pointSize, float opacity) 
@@ -514,7 +514,7 @@ void XRAY_gui::updateNotify(std::string message)
 	QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest),
 		Qt::LowEventPriority);
 	QMetaObject::invokeMethod((QObject*)this, "secureThreadUpdate", Q_ARG(QString,QString::fromStdString(message)));
-	
+
 	// Should ultimately be removed
 	QCoreApplication::processEvents();
 }
@@ -644,6 +644,45 @@ matVoxel * XRAY_gui::getActiveSkeleton()
 	return NULL;
 }
 
+Wm5::BSplineCurve3d * XRAY_gui::getActiveCurve()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(curves[items[0]->text(0)])
+		{
+			return curves[items[0]->text(0)];
+		}
+	}
+
+	return NULL;
+}
+
+QString XRAY_gui::getActiveCurveName()
+{
+	QList<QTreeWidgetItem*> items=ui.treeWidget->selectedItems();
+	if(items.size()>0)
+	{
+		if(curves[items[0]->text(0)])
+		{
+			return items[0]->text(0);
+		}
+	}
+
+	return "";
+}
+
+QTreeWidgetItem* XRAY_gui::getParentItem(QString name)
+{
+	QList<QTreeWidgetItem*> items = ui.treeWidget->findItems(name,Qt::MatchContains|Qt::MatchRecursive);
+	if(items.size()>0)
+	{
+		return items.at(0)->parent();
+	}
+
+	return NULL;
+}
+
 
 QString XRAY_gui::getActiveSkeletonName()
 {
@@ -662,36 +701,36 @@ QString XRAY_gui::getActiveSkeletonName()
 
 
 ThreadLoaderSkeletonWorker::ThreadLoaderSkeletonWorker(matVoxel * vox, pcl::PointCloud<pcl::PointXYZI> * cloud2,VolumeData * currentData) : vox(vox), cloud2(cloud2),currentData(currentData)
-	{
+{
 
-	}
+}
 
 void ThreadLoaderSkeletonWorker::run()
-	{
-		vox->skeletonize(currentData->voxels,currentData->w,currentData->h,currentData->d);
+{
+	vox->skeletonize(currentData->voxels,currentData->w,currentData->h,currentData->d);
 
-		vox->cog();
+	vox->cog();
 
-		vox->skeletonToPoints(cloud2);
+	vox->skeletonToPoints(cloud2);
 
-		cloud2->width=cloud2->size();
-		cloud2->height=1;
+	cloud2->width=cloud2->size();
+	cloud2->height=1;
 
-		emit getRes(vox,cloud2,currentData);
+	emit getRes(vox,cloud2,currentData);
 
-		emit finished();
-	}
+	emit finished();
+}
 
 void XRAY_gui::enableInterface(bool v)
 {
-	
-		ui.dockWidget->setEnabled(v);
-		ui.dockWidget_2->setEnabled(v);
-		ui.dockWidget_3->setEnabled(v);
-		ui.dockWidget_4->setEnabled(v);
-		ui.dockWidget_5->setEnabled(v);
-		ui.propertiesdockWidget->setEnabled(v);
-	
+
+	ui.dockWidget->setEnabled(v);
+	ui.dockWidget_2->setEnabled(v);
+	ui.dockWidget_3->setEnabled(v);
+	ui.dockWidget_4->setEnabled(v);
+	ui.dockWidget_5->setEnabled(v);
+	ui.propertiesdockWidget->setEnabled(v);
+
 }
 
 void XRAY_gui::on_skeletonizepushButton_clicked()
@@ -708,74 +747,57 @@ void XRAY_gui::on_skeletonizepushButton_clicked()
 
 QThread * XRAY_gui::Skeletonize( VolumeData * currentData ) 
 {
-		enableInterface(false);
+	enableInterface(false);
 
-		ui.qvtkWidget->setEnabled(true);
-		ui.qvtkWidget->setDisabled(false);
+	ui.qvtkWidget->setEnabled(true);
+	ui.qvtkWidget->setDisabled(false);
 
-		matVoxel *vox=new matVoxel();
-		vox->pixSize=currentData->pixSize;
-		/*vox.voxels=currentData->voxels;
-		vox.w=currentData->w;
-		vox.h=currentData->h;
-		vox.d=currentData->d;*/
-
-
-
-		pcl::PointCloud<pcl::PointXYZI> * cloud2 = new pcl::PointCloud<pcl::PointXYZI>();
-
-		QThread * thread=new QThread();
-
-		ThreadLoaderSkeletonWorker * threadworker = new ThreadLoaderSkeletonWorker(vox,cloud2,currentData);
-
-		threadworker->moveToThread(thread);
-
-		connect(thread,SIGNAL(started()),threadworker,SLOT(run()));
-		connect(threadworker,SIGNAL(getRes(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )),this,SLOT(skeletonLoading(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )));
-
-		connect(threadworker, SIGNAL(finished()), thread, SLOT(quit()));
-		connect(threadworker, SIGNAL(finished()), threadworker, SLOT(deleteLater()));
-		connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+	matVoxel *vox=new matVoxel();
+	vox->pixSize=currentData->pixSize;
+	/*vox.voxels=currentData->voxels;
+	vox.w=currentData->w;
+	vox.h=currentData->h;
+	vox.d=currentData->d;*/
 
 
-		thread->start();
 
-		return thread;
+	pcl::PointCloud<pcl::PointXYZI> * cloud2 = new pcl::PointCloud<pcl::PointXYZI>();
 
-		//imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr((pcl::PointCloud<pcl::PointXYZI>*)getActiveCloud()), (float)vox->w / 2*currentData->pixSize, (float)vox->h / 2*currentData->pixSize, (float)vox->d / 2*currentData->pixSize, vox->cogX, vox->cogY, vox->cogZ);
-	}
+	QThread * thread=new QThread();
+
+	ThreadLoaderSkeletonWorker * threadworker = new ThreadLoaderSkeletonWorker(vox,cloud2,currentData);
+
+	threadworker->moveToThread(thread);
+
+	connect(thread,SIGNAL(started()),threadworker,SLOT(run()));
+	connect(threadworker,SIGNAL(getRes(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )),this,SLOT(skeletonLoading(matVoxel * , pcl::PointCloud<pcl::PointXYZI> * ,VolumeData * )));
+
+	connect(threadworker, SIGNAL(finished()), thread, SLOT(quit()));
+	connect(threadworker, SIGNAL(finished()), threadworker, SLOT(deleteLater()));
+	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+
+	thread->start();
+
+	return thread;
+
+	//imageVolumeLoader::correctCenter(pcl::PointCloud<pcl::PointXYZI>::Ptr((pcl::PointCloud<pcl::PointXYZI>*)getActiveCloud()), (float)vox->w / 2*currentData->pixSize, (float)vox->h / 2*currentData->pixSize, (float)vox->d / 2*currentData->pixSize, vox->cogX, vox->cogY, vox->cogZ);
+}
 
 void XRAY_gui::skeletonLoading( matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI>* cloud2,VolumeData * currentData )
 {
 	QString name="Skeleton MA "+QString::number(pointClouds.size());
 
-	//imageVolumeLoader::correctCenter(((pcl::PointCloud<pcl::PointXYZI>::Ptr)getActiveCloud()), (float)(currentData->w) / 2*currentData->pixSize, (float)(currentData->h) / 2*currentData->pixSize, (float)(voxel->d) / 2*currentData->pixSize, voxel->cogX*currentData->pixSize, voxel->cogY*currentData->pixSize, voxel->cogZ*currentData->pixSize);
-
 	pcl::PointCloud<pcl::PointXYZI>::Ptr c_(cloud2);
 
 	addCloud(c_,name,3,0.8);
-
 	pointClouds.insert(name,c_);//static_cast<void*>(cloud2));
-
 	algData.insert(name,voxel);
-
-	/*QList<QTreeWidgetItem*> item = ui.treeWidget->findItems(QString::fromStdString(getActiveCloudName()),Qt::MatchContains|Qt::MatchRecursive);//"skeletons",Qt::MatchContains|Qt::MatchRecursive);
-
-	auto skeletonItem=new QTreeWidgetItem(QStringList(name));
-
-	item.at(0)->addChild(skeletonItem);
-
-
-	ui.treeWidget->clearSelection();
-	ui.treeWidget->setItemSelected(skeletonItem,true);*/
 
 	addItemToTreeWidget(name,QString::fromStdString(getActiveCloudName()));
 
-	
-
 	enableInterface(true);
 
-	//viewer->spin();
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> handler(getActiveCloud(), "intensity");
 	viewer->updatePointCloud(getActiveCloud(),handler,getActiveCloudName());
 	viewer->updateCamera();
@@ -788,7 +810,7 @@ void XRAY_gui::skeletonLoading( matVoxel * voxel, pcl::PointCloud<pcl::PointXYZI
 
 void XRAY_gui::on_delpushButton_clicked()
 {
-	
+
 	QString dataname = QString::fromStdString(getActiveCloudName());
 
 	if(dataname.compare("")==0)
@@ -799,11 +821,11 @@ void XRAY_gui::on_delpushButton_clicked()
 		//QString dataname=QString::fromStdString(getActiveCloudName());
 		//volumes.remove(dataname);
 		viewer->removePointCloud(dataname.toStdString());
-		
-			
-			pointClouds.remove(dataname);
-			
-			
+
+
+		pointClouds.remove(dataname);
+
+
 	}
 
 	if(getActiveVolume()!=NULL)
@@ -811,7 +833,7 @@ void XRAY_gui::on_delpushButton_clicked()
 		//QString dataname = QString::fromStdString(getActiveCloudName());
 
 		delete[] getActiveVolume()->voxels;
-		
+
 		delete getActiveVolume();
 
 		volumes.remove(dataname);
@@ -852,7 +874,7 @@ void XRAY_gui::on_cleanPathpushButton_clicked()
 
 		pruning(skeleton_);
 
-		
+
 		//viewer->spinOnce(1,true);
 
 	}
@@ -868,55 +890,55 @@ void XRAY_gui::pruning(matVoxel * skeleton_)
 
 	std::vector<int> endpoints_indices;
 
-		skeleton_->isolatePoints(endpoints_indices);
+	skeleton_->isolatePoints(endpoints_indices);
 
-		pcl::PointCloud<pcl::PointXYZI>::Ptr endpointsPointCloud(new pcl::PointCloud<pcl::PointXYZI>());
+	pcl::PointCloud<pcl::PointXYZI>::Ptr endpointsPointCloud(new pcl::PointCloud<pcl::PointXYZI>());
 
-		skeleton_->vectorToPointCloud(endpointsPointCloud,endpoints_indices);
+	skeleton_->vectorToPointCloud(endpointsPointCloud,endpoints_indices);
 
-		if(endpointsPointCloud->size()>0)
-		{
-
-
-			QString name="End points "+QString::number(pointClouds.size());
-
-			/*QList<QTreeWidgetItem*> item = ui.treeWidget->findItems(getActiveSkeletonName(),Qt::MatchContains|Qt::MatchRecursive);//"points",Qt::MatchContains|Qt::MatchRecursive);
-
-			pointClouds.insert(name,endpointsPointCloud);
-
-			item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));*/
-
-			pointClouds.insert(name,endpointsPointCloud);
-
-			addItemToTreeWidget(name,getActiveSkeletonName(),false);
-
-			addCloud(endpointsPointCloud,name,5,0.1);
-
-			secureThreadUpdate("End/Tail points : "+QString::number(endpointsPointCloud->points.size()));
-			QCoreApplication::processEvents();
-		}
+	if(endpointsPointCloud->size()>0)
+	{
 
 
-		if(endpointsPointCloud->size()>0)
-		{
+		QString name="End points "+QString::number(pointClouds.size());
 
-			pcl::PointCloud<pcl::PointXYZI>::Ptr longestShortestPathCloud(new pcl::PointCloud<pcl::PointXYZI>());
+		/*QList<QTreeWidgetItem*> item = ui.treeWidget->findItems(getActiveSkeletonName(),Qt::MatchContains|Qt::MatchRecursive);//"points",Qt::MatchContains|Qt::MatchRecursive);
 
-			skeleton_->findPath(endpoints_indices.at(0),longestShortestPathCloud);
+		pointClouds.insert(name,endpointsPointCloud);
 
-			QString name="Path cloud "+QString::number(pointClouds.size());
+		item.at(0)->addChild(new QTreeWidgetItem(QStringList(name)));*/
 
-			addItemToTreeWidget(name,getActiveSkeletonName());//"Paths"
+		pointClouds.insert(name,endpointsPointCloud);
 
-			pointClouds.insert(name,longestShortestPathCloud);
+		addItemToTreeWidget(name,getActiveSkeletonName(),false);
+
+		addCloud(endpointsPointCloud,name,5,0.1);
+
+		secureThreadUpdate("End/Tail points : "+QString::number(endpointsPointCloud->points.size()));
+		QCoreApplication::processEvents();
+	}
 
 
-			addCloud(longestShortestPathCloud,name,3,0.8);
+	if(endpointsPointCloud->size()>0)
+	{
+
+		pcl::PointCloud<pcl::PointXYZI>::Ptr longestShortestPathCloud(new pcl::PointCloud<pcl::PointXYZI>());
+
+		skeleton_->findPath(endpoints_indices.at(0),longestShortestPathCloud);
+
+		QString name="Path cloud "+QString::number(pointClouds.size());
+
+		addItemToTreeWidget(name,getActiveSkeletonName());//"Paths"
+
+		pointClouds.insert(name,longestShortestPathCloud);
 
 
-			secureThreadUpdate("Path points : "+QString::number(longestShortestPathCloud->points.size()));
-			QCoreApplication::processEvents();
-		}
+		addCloud(longestShortestPathCloud,name,3,0.8);
+
+
+		secureThreadUpdate("Path points : "+QString::number(longestShortestPathCloud->points.size()));
+		QCoreApplication::processEvents();
+	}
 }
 
 
@@ -926,21 +948,19 @@ void XRAY_gui::addItemToTreeWidget(QString itemName, QString parentName, bool af
 	QList<QTreeWidgetItem*> itemParent = ui.treeWidget->findItems(parentName,Qt::MatchContains|Qt::MatchRecursive);
 	if(itemParent.size()>0)
 	{
-	auto itemChild=new QTreeWidgetItem(QStringList(itemName));
-	itemParent.at(0)->addChild(itemChild);
-	if(afterSelect)
-	{
-		ui.treeWidget->clearSelection();
-		ui.treeWidget->setItemSelected(itemChild,true);
-		ui.treeWidget->expandAll();
-	}}
+		auto itemChild=new QTreeWidgetItem(QStringList(itemName));
+		itemParent.at(0)->addChild(itemChild);
+		if(afterSelect)
+		{
+			ui.treeWidget->clearSelection();
+			ui.treeWidget->setItemSelected(itemChild,true);
+			ui.treeWidget->expandAll();
+		}}
 
 }
 
 void XRAY_gui::on_splinepushButton_4_clicked()
 {
-
-	//matVoxel * currentSkeleton=getActiveSkeleton();
 
 	auto cloud=getActiveCloud();
 
@@ -952,9 +972,9 @@ void XRAY_gui::on_splinepushButton_4_clicked()
 			QMessageBox::information(this,"Error","Too many points (probably trying to fit a curve to a volume)");
 			return;
 		}
-	
+
 		if(cloud->points.size()>0)
-		fitCurve(cloud);
+			fitCurve(cloud);
 
 	}
 
@@ -968,31 +988,16 @@ Wm5::BSplineCurve3d * XRAY_gui::fitCurve(pcl::PointCloud<pcl::PointXYZI>::Ptr cl
 	QCoreApplication::processEvents();
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurbPoints(new pcl::PointCloud<pcl::PointXYZRGB>());
-
 	Wm5::BSplineCurve3d * curve;
-
 	matVoxel::fitCurve(ui.orderspinBox->value(),cl,nurbPoints,&curve);
-
 	pcl::PolygonMesh::Ptr mesh = matVoxel::toPoly(nurbPoints);
-
 	QString name="Spline "+QString::number(meshes.size());
-
-	//QList<QTreeWidgetItem*> item = ui.treeWidget->findItems(QString::fromStdString(getActiveCloudName()),Qt::MatchContains|Qt::MatchRecursive);//"B-Splines",Qt::MatchContains|Qt::MatchRecursive);
-
 	meshes.insert(name,mesh.get());
-
 	curves.insert(name,curve);
 
 	addItemToTreeWidget(name,QString::fromStdString(getActiveCloudName()),true);
 
-
-
 	viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
-
-
-
-//	viewer->updateCamera();
-	//viewer->spinOnce(1,true);
 
 	return curve;
 
@@ -1036,6 +1041,9 @@ void XRAY_gui::on_actionImport_settings_triggered()
 	QString path=QFileDialog::getOpenFileName(this, tr("Open settings"),
 		"","",&QString("*.xml"));
 
+	if(path=="")
+		return;
+
 	QMap<QString,QString> listParameters=OptionsLoader::loadXmlFile(path);
 
 
@@ -1056,10 +1064,10 @@ void XRAY_gui::on_actionImport_settings_triggered()
 	ui.framesperdivspinBox->setValue(listParameters["PathReconstructionFramesPerSubdivision"].toDouble());
 	ui.endthresholdspinBox->setValue(listParameters["DetectionOfEndPercentageThreshold"].toDouble());
 	ui.planedimspinBox->setValue(listParameters["PlaneDimensions"].toDouble());
-	ui.lspinBox->setValue(listParameters["CropL"].toInt());
-	ui.rspinBox->setValue(listParameters["CropR"].toInt());
-	ui.tspinBox->setValue(listParameters["CropT"].toInt());
-	ui.bspinBox->setValue(listParameters["CropB"].toInt());
+	ui.lspinBox->setValue(listParameters["CropLeft"].toInt());
+	ui.rspinBox->setValue(listParameters["CropRight"].toInt());
+	ui.tspinBox->setValue(listParameters["CropTop"].toInt());
+	ui.bspinBox->setValue(listParameters["CropBottom"].toInt());
 
 
 
@@ -1089,78 +1097,132 @@ void XRAY_gui::run()
 	{
 		std::string volumecloudName=getActiveCloudName();
 
-	QThread * th=Skeletonize(getActiveVolume());
+		QThread * th=Skeletonize(getActiveVolume());
 
-	if(!th)
-		return;
+		if(!th)
+			return;
 
-	while(!th->isFinished())
-	{
+		while(!th->isFinished())
+		{
+			QCoreApplication::processEvents();
+			Sleep(100);
+		}
+
 		QCoreApplication::processEvents();
-		Sleep(100);
+
+		matVoxel * skeleton=getActiveSkeleton();//algData.values().last();
+
+		QString skeletonName=getActiveSkeletonName();
+
+		pruning(skeleton);
+
+		QCoreApplication::processEvents();
+
+		if(QString::fromStdString(getActiveCloudName()).contains("Path"))
+		{
+
+			auto pathCloud=getActiveCloud();
+
+			Wm5::BSplineCurve3d * curve = fitCurve(pathCloud);
+
+			reconstructPath(skeleton,curve,pathCloud->size(),skeletonName.toStdString());
+
+
+		}
+
+
 	}
+
+
+}
+
+
+
+void XRAY_gui::reconstructPath(matVoxel * skeleton, Wm5::BSplineCurve3d * curve, int nbSampling, std::string volumename)
+{
+
+	pcl::PointCloud<pcl::PointXYZI>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZI>());
+
+	std::vector<std::pair<double,double>> y_values;
+
+	secureThreadUpdate("Correction of the path center");
+	QCoreApplication::processEvents();
+
+	double endPositiononCurve=0;
+
+	double meanW=0, meanH=0;
+
+	skeleton->plans(viewer,"C:/test/",center_line,nbSampling,curve,y_values,ui.planedimspinBox->value(),ui.prethresholdspinBox->value(),(double)ui.endthresholdspinBox->value()/100,endPositiononCurve,meanW,meanH,true);
+
+	QString name="Center Line "+QString::number(pointClouds.size());
+	pointClouds.insert(name,center_line);
+	addCloud(center_line,name,5,0.8);
+	addItemToTreeWidget(name,QString::fromStdString(volumename));
+
+	auto curveCorrected = fitCurve(center_line);
+
+	pcl::PointCloud<pcl::PointXYZI>::Ptr endLine(new pcl::PointCloud<pcl::PointXYZI>());
+
+	skeleton->projectBack(curveCorrected,endLine,ui.prethresholdspinBox->value());
+
+	name="Starting points "+QString::number(pointClouds.size());
+	pointClouds.insert(name,endLine);
+	addCloud(endLine,name,5,0.8);
+	addItemToTreeWidget(name,QString::fromStdString(volumename));
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr endLine2(new pcl::PointCloud<pcl::PointXYZRGB>());
+	pcl::copyPointCloud(*endLine,*endLine2);
+	pcl::PolygonMesh::Ptr mesh = matVoxel::toPoly(endLine2);
+	meshes.insert(name,mesh.get());
+	viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
+
+
+	secureThreadUpdate("Mean height : "+QString::number(meanH)+" um Mean width : "+QString::number(meanW)+" um");
+
+	Eigen::Vector3d vec(endLine->at(0).x-endLine->at(1).x,endLine->at(0).y-endLine->at(1).y,endLine->at(0).z-endLine->at(1).z);
+
+	double d=std::sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+
+	double l=curveCorrected->GetLength(curveCorrected->GetMinTime(),curveCorrected->GetMaxTime());
+
+	double originalSpline=curve->GetLength(0,1)-curve->GetLength(endPositiononCurve,1)+d;
+
+	secureThreadUpdate("Length : "+QString::number(curve->GetLength(0,1)-curve->GetLength(endPositiononCurve,1)+d)+" um");
+
+	secureThreadUpdate("Length : "+QString::number(curveCorrected->GetLength(curveCorrected->GetMinTime(),curveCorrected->GetMaxTime()))+" um");
+
+	secureThreadUpdate("Length : "+QString::number(matVoxel::getLength(curveCorrected,100000))+" um");
+
+}
+
+
+void XRAY_gui::on_reconstruct_pushButton_clicked()
+{
+	auto curve=getActiveCurve();
+	auto curvename=getActiveCurveName();
+
+	if(curve)
+	{
+
+	auto pathCloud=pointClouds[getParentItem(curvename)->text(0)];
+
+	if(pathCloud)
+	{
 	
-	QCoreApplication::processEvents();
+		QString skname=getParentItem(curvename)->parent()->text(0);
 
-	matVoxel * skeleton=getActiveSkeleton();//algData.values().last();
+	auto skeleton=algData[skname];
 
-	pruning(skeleton);
+	auto volumename=getParentItem(curvename)->parent()->parent()->text(0);
 
-	QCoreApplication::processEvents();
-
-	if(QString::fromStdString(getActiveCloudName()).contains("Path"))
+	if(skeleton)
 	{
-
-		auto pathCloud=getActiveCloud();
-
-		Wm5::BSplineCurve3d * curve = fitCurve(pathCloud);
-
-		pcl::PointCloud<pcl::PointXYZI>::Ptr center_line(new pcl::PointCloud<pcl::PointXYZI>());
-
-		std::vector<std::pair<double,double>> y_values;
-
-		secureThreadUpdate("Correction of the path center");
-		QCoreApplication::processEvents();
-
-		double endPositiononCurve=0;
-
-		double meanW=0, meanH=0;
-
-		skeleton->plans(NULL,"",center_line,pathCloud->size()/2,curve,y_values,ui.planedimspinBox->value(),ui.prethresholdspinBox->value(),(double)ui.endthresholdspinBox->value()/100,endPositiononCurve,meanW,meanH,true);
-
-		QString name="Center Line "+QString::number(pointClouds.size());
-		pointClouds.insert(name,center_line);
-		addCloud(center_line,name,5,0.8);
-		addItemToTreeWidget(name,QString::fromStdString(volumecloudName));
-
-		pathCloud=getActiveCloud();
-
-		curve = fitCurve(pathCloud);
-
-		pcl::PointCloud<pcl::PointXYZI>::Ptr endLine(new pcl::PointCloud<pcl::PointXYZI>());
-
-		skeleton->projectBack(curve,endLine,ui.prethresholdspinBox->value(),ui.planedimspinBox->value());
-
-		name="Starting points "+QString::number(pointClouds.size());
-		pointClouds.insert(name,endLine);
-		addCloud(endLine,name,5,0.8);
-		addItemToTreeWidget(name,QString::fromStdString(volumecloudName));
-
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr endLine2(new pcl::PointCloud<pcl::PointXYZRGB>());
-		pcl::copyPointCloud(*endLine,*endLine2);
-		pcl::PolygonMesh::Ptr mesh = matVoxel::toPoly(endLine2);
-		meshes.insert(name,mesh.get());
-		viewer->addPolylineFromPolygonMesh(*mesh,name.toStdString());
-
-
-		secureThreadUpdate("Mean height : "+QString::number(meanH)+" um Mean width : "+QString::number(meanW)+" um");
+		reconstructPath(skeleton,curve,pathCloud->size(),skname.toStdString());
+	}
 
 	}
 
-
 	}
-
-
 }
 
 /*void XRAY_gui::correctCenterLine()

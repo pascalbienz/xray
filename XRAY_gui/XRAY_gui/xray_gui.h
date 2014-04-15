@@ -130,6 +130,7 @@ public	slots: void on_toolButton_clicked();
 	void on_cleanPathpushButton_clicked();
 	void on_splinepushButton_4_clicked();
 	void on_actionExport_settings_triggered();
+	void on_reconstruct_pushButton_clicked();
 	void loadDir(QString dir);
 	void on_actionImport_settings_triggered();
 	void run();
@@ -147,6 +148,10 @@ public	slots: void on_toolButton_clicked();
 	void on_rspinBox_valueChanged();
 	void on_tspinBox_valueChanged();
 	void on_bspinBox_valueChanged();
+	void reconstructPath(matVoxel * skeleton, Wm5::BSplineCurve3d * curve, int nbSampling, std::string volumename);
+	Wm5::BSplineCurve3d * getActiveCurve();
+	QString getActiveCurveName();
+	QTreeWidgetItem* getParentItem(QString name);
 private:
 	Ui::XRAY_guiClass ui;
 	QLabel * usagelabelStatus;

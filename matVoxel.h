@@ -43,6 +43,7 @@ public:
 	float pixSize;
 
 	int matchA[27*6], matchB[27*12], matchC[27*8], matchD[27*12];
+
 	int matVoxel::is26adjacent(int x, int y, int z);
 	int matVoxel::is6adjacent(int x, int y, int z);
 	int matVoxel::is18adjacent(int x, int y, int z);
@@ -67,31 +68,16 @@ public:
 	void matVoxel::algo();
 	void matVoxel::algo2();
 
-	//void matVoxel::fitCurve(int order);
-	
+		
 	void matVoxel::skeletonToPoints(pcl::PointCloud<pcl::PointXYZI>* pointCloud);//, byte * voxels, int w, int h, int d, float pixSize);
 	void vectorToPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud, std::vector<int> vec);
 	
-
-
-	/*pcl::PointCloud<pcl::PointXYZI>::Ptr endpoints;
-	std::vector<int> markers_endpoints;
-
-	pcl::PointCloud<pcl::PointXYZI>::Ptr path_cloud;
-	std::vector<int> path;
-
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr nurb;
-
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr center_line;
-
-	//ON_NurbsCurve* cur;
-	Wm5::BSplineCurve3d *cur;*/
-
 	void matVoxel::plans(pcl::visualization::PCLVisualizer* viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, int thresholdMeasure, double endPerThreshold, double &posEnd, double &meanW, double &meanH, bool processImages=false);
 
 	void computePlaneMat(cv::Mat & image, double length, Wm5::Vector3d &point, Eigen::Vector3d &ax1, Eigen::Vector3d &ax2 );
 	
 	void projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold, int length);
+	void projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold);
 	void matVoxel::pca(cv::Mat image,cv::Point2d &center, cv::Point2d &vec1, cv::Point2d &vec2, double &e1, double &e2, int threshold, std::vector<cv::Point> contour=std::vector<cv::Point>());
 
 	float matVoxel::triLinear(float x, float y, float z);
@@ -102,11 +88,10 @@ public:
 	static pcl::PolygonMesh::Ptr matVoxel::toPoly(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 	void retrieveCorrectCenter(std::vector<cv::Point> &contour_inter, std::vector<std::vector<cv::Point>> &contour_list, float centerX, float centerY);
 	void getWidthHeight( cv::Mat param1, cv::Point2d center, double e1, double e2, double &wI, double &hI , int threshold);
+	static	double getLength(Wm5::BSplineCurve3d * curve, int nbSampling);
 	bool init;
 
 	
 
-	//std::vector<double> x_values,y_values;
-	//std::vector<std::pair<double,double>> x_values, y_values;
 };
 

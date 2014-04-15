@@ -1,4 +1,5 @@
 #include "matVoxel.h"
+#include "build/precisionTiming.h"
 
 #include <iostream>
 #include <vector>
@@ -12,6 +13,14 @@ using namespace std;
 #define getZ(i) (i)/(w*h)
 #define getX(i) (i)%w
 #define getY(i) ((i)%(w*h))/w
+
+
+/* Voxel neighbors : 27 indexed */
+#define convertBlockDev27(x,y,z) (x+1) + (y+1) * 3 + (z+1)*9
+#define idX(i) (- 1 + (i) % 3)
+#define idY(i) (- 1 + ((i) % 9)/3)
+#define idZ(i) (- 1 + (i) / 9)
+
 
 /*
 
@@ -48,6 +57,8 @@ matVoxel::~matVoxel()
 
 
 /*
+Used for the template matching algorithm
+
 numFace : 0 yz, 1 xz, 2 xy
 Checks if every voxels of a face is object only
 */
@@ -80,6 +91,8 @@ bool matVoxel::checkFaces(int x, int y, int z, int numFace)
 }
 
 /*
+In general : Lazy evaluation and no loops to ensure max speed
+
 Specific check for class A (equivalent to applying several matchOne with class A)
 */
 bool matVoxel::classA(int x, int y, int z)
@@ -95,7 +108,9 @@ bool matVoxel::classA(int x, int y, int z)
 }
 
 
-
+/*
+	Returns the number of 6 adjacent background voxels
+*/
 int matVoxel::is6adjacent(int x, int y, int z)
 {
 	return (voxelTypes[getAt(x + 1, y, z)] == BACKGROUND) +
@@ -106,6 +121,9 @@ int matVoxel::is6adjacent(int x, int y, int z)
 		(voxelTypes[getAt(x, y, z - 1)] == BACKGROUND);
 }
 
+/*
+	Returns the number of 18 ajdacent background voxels
+*/
 int matVoxel::is18adjacent(int x, int y, int z)
 {
 	return (is6adjacent(x, y, z)) +
@@ -123,8 +141,8 @@ int matVoxel::is18adjacent(int x, int y, int z)
 		(voxelTypes[getAt(x, y - 1, z - 1)] == BACKGROUND);
 }
 
-/* Returns wether the voxel is adjacent to a background one
-(Lazy evaluation and no loops to ensure max speed)
+/*
+Returns wether the voxel is adjacent to a background one
 */
 int matVoxel::is26adjacent(int x, int y, int z)
 {
@@ -144,7 +162,7 @@ int matVoxel::is26adjacent(int x, int y, int z)
 enum { UP, DOWN, NORTH, SOUTH, EAST, WEST, };
 
 /*
-Checks the borderness of a voxel, related to a specific direction. ie. north south east west up and down
+Checks the borderness property of a voxel, related to a specific direction. ie. north south east west up and down
 */
 int matVoxel::isBorder(int x, int y, int z, int direction)
 {
@@ -228,6 +246,7 @@ bool matVoxel::simplePoint(int x, int y, int z)
 
 }
 
+/* x, y, z */
 int list6Neighbor[] =
 {0,0,-1,
 0,-1,0,
@@ -272,10 +291,6 @@ int list6Neighbor[] =
 
 //int direction
 
-#define convertBlockDev27(x,y,z) (x+1) + (y+1) * 3 + (z+1)*9
-#define idX(i) (- 1 + (i) % 3)
-#define idY(i) (- 1 + ((i) % 9)/3)
-#define idZ(i) (- 1 + (i) / 9)
 
 struct tmp
 {
@@ -288,6 +303,7 @@ int listF[30];
 bool check[27];// = { false };
 
 tmp()
+
 {
 	list.reserve(30);
 	//startList=0;
@@ -335,6 +351,10 @@ char directionL1[27]={0};
 char directions2[27][27*3];
 char directionL2[27]={0};
 
+/*
+ In order to accelerate the characterization of points, generates the set of available direction for each of the voxels
+ in a 0-27 indexed neighbor set
+*/
 void generateSetOfPossibleDirections()
 {
 	for (int c = 0; c < 27; c++)
@@ -346,21 +366,20 @@ void generateSetOfPossibleDirections()
 	for (int c = 0; c < 27; c++)
 	{
 
-	for (int i = 0; i < 27; i++)
-	{
-		int _x = idX(c) + idX(i);
-		int _y = idY(c) + idY(i);
-		int _z = idZ(c) + idZ(i);
-		if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || convertBlockDev27(_x, _y, _z) == c)
-			continue;
+		for (int i = 0; i < 27; i++)
+		{
+			int _x = idX(c) + idX(i);
+			int _y = idY(c) + idY(i);
+			int _z = idZ(c) + idZ(i);
+			if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || convertBlockDev27(_x, _y, _z) == c)
+				continue;
 		
-		directions1[c][directionL1[c]*3]=_x;
-		directions1[c][directionL1[c]*3+1]=_y;
-		directions1[c][directionL1[c]*3+2]=_z;
+			directions1[c][directionL1[c]*3]=_x;
+			directions1[c][directionL1[c]*3+1]=_y;
+			directions1[c][directionL1[c]*3+2]=_z;
 
-		directionL1[c]++;
-
-	}
+			directionL1[c]++;
+		}
 
 	}
 
@@ -368,22 +387,22 @@ void generateSetOfPossibleDirections()
 	for (int c = 0; c < 27; c++)
 	{
 
-	for (int i = 0; i < 6; i++)
-	{
-		int _x = idX(c) + list6Neighbor[i * 3];
-		int _y = idY(c) + list6Neighbor[i * 3 + 1];
-		int _z = idZ(c) + list6Neighbor[i * 3 + 2];
-		if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || (abs(_x) + abs(_y) + abs(_z)>2)|| convertBlockDev27(_x, _y, _z) == c)
-			continue;
+		for (int i = 0; i < 6; i++)
+		{
+			int _x = idX(c) + list6Neighbor[i * 3];
+			int _y = idY(c) + list6Neighbor[i * 3 + 1];
+			int _z = idZ(c) + list6Neighbor[i * 3 + 2];
+			if (abs(_x) == 2 || abs(_y) == 2 || abs(_z) == 2 || (_x == 0 && _y == 0 && _z == 0) || (abs(_x) + abs(_y) + abs(_z)>2)|| convertBlockDev27(_x, _y, _z) == c)
+				continue;
 
 
-		directions2[c][directionL2[c]*3]=_x;
-		directions2[c][directionL2[c]*3+1]=_y;
-		directions2[c][directionL2[c]*3+2]=_z;
+			directions2[c][directionL2[c]*3]=_x;
+			directions2[c][directionL2[c]*3+1]=_y;
+			directions2[c][directionL2[c]*3+2]=_z;
 
-		directionL2[c]++;
+			directionL2[c]++;
 
-	}
+		}
 
 	}
 
@@ -391,8 +410,9 @@ void generateSetOfPossibleDirections()
 
 /*
 Checking connectivity of the 6-adjacent object neighbours within the set of 26-adjacents object
-Note : Already optimized with custom list. To be done : simple discard of impossible moves by pre-calculating
-directions for every 26 voxels. (Would allow for around 4 times speed up)
+Note : Already optimized with custom list.
+Discarding impossible moves by using pre-calculated
+directions for every 26 voxels.
 */
 bool matVoxel::topConnect26(int x, int y, int z)
 {
@@ -524,11 +544,6 @@ Checking connectivity of 6-adjacent background neighbours within the set of 18-a
 bool matVoxel::topConnect6(int x, int y, int z)
 {
 
-	//int threadID=omp_get_thread_num();
-
-	//tmp * opt =&tmpContainers[omp_get_thread_num()];
-
-
 
 	int nBack = 0;
 	int checkPos = 0;
@@ -561,7 +576,6 @@ bool matVoxel::topConnect6(int x, int y, int z)
 		//::list.clear();
 		//::list.push_back(checkPos);
 
-
 		int startList = 0;
 		opt->listF[startList] = checkPos;
 		int nextList = 1;
@@ -572,13 +586,13 @@ bool matVoxel::topConnect6(int x, int y, int z)
 		int nb = 1;
 		while (startList!=nextList)//::list.size() > 0)
 		{
-			/*c = ::list.at(0);//back();
+			/*c = ::list.at(0);;
 			::check[c] = true;
-			::list.erase(::list.begin());//pop_back();*/
+			::list.erase(::list.begin());*/
 
 			c = opt->listF[startList];//::list.at(0);//back();
 			opt->check[c] = true;
-			//::list.erase(::list.begin());//pop_back();
+			//::list.erase(::list.begin());;
 			startList++;
 
 			for (int i = 0; i < 6; i++)
@@ -687,7 +701,9 @@ bool matVoxel::matchClass(int x, int y, int z)
 }
 
 
-
+/*
+Displaying the voxel and its neighbor in console
+*/
 void matVoxel::disp(int * data)
 {
 
@@ -719,7 +735,7 @@ void matVoxel::disp(int * data)
 }
 
 /*
-Displays a voxel on the console, starting with lower y
+Displays a voxel on the console, starting with lower y,z,x
 */
 void matVoxel::disp(int x_, int y_, int z_)
 {
@@ -1688,11 +1704,12 @@ void matVoxel::retrieveCorrectCenter(std::vector<cv::Point> &contour_inter, std:
 
 }
 
+/*
+	Given the plane defined by orthogonal axis ax1 and ax2, compute the image of the cross-section
+*/
 void matVoxel::computePlaneMat(cv::Mat & image, double length, Wm5::Vector3d &point, Eigen::Vector3d &ax1, Eigen::Vector3d &ax2 )
 {
-	/*
-	Given the plane defined by orthogonal axis ax1 and ax2, compute the image of the cross-section
-	*/
+	
 	#pragma omp parallel for
 	for (int a_1 = 0; a_1 < (int)length; a_1++)
 	{
@@ -1726,33 +1743,24 @@ void matVoxel::computePlaneMat(cv::Mat & image, double length, Wm5::Vector3d &po
 	}
 }
 
-LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
-LARGE_INTEGER Frequency;
-#define PERFCOUNT
 
-void startCounter()
+
+double matVoxel::getLength(Wm5::BSplineCurve3d * curve, int nbSampling)
 {
-	#ifndef PERFCOUNT
-	 return;
-	#endif
+	Wm5::Vector3d point=point=curve->GetPosition(0);
 
-	QueryPerformanceFrequency(&Frequency); 
-	QueryPerformanceCounter(&StartingTime);
+	double acc=0;
+
+	for (int i = 1; i < nbSampling; i++)
+	{
+		Wm5::Vector3d point2=curve->GetPosition((double)i/nbSampling);
+		acc+=(point2-point).Length();
+		point=point2;
+	}
+
+	return acc;
+
 }
-
-void stopShow(std::string str)
-{
-#ifndef PERFCOUNT
-	return;
-#endif
-
-	QueryPerformanceCounter(&EndingTime);
-	ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-	ElapsedMicroseconds.QuadPart *= 1000000;
-	ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
-	OutputDebugString((str+" "+boost::lexical_cast<string>(ElapsedMicroseconds.QuadPart)+"\n").c_str());
-}
-
 
 void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl::PointCloud<pcl::PointXYZI>::Ptr center_line,int nbSampling,Wm5::BSplineCurve3d * cur,std::vector<std::pair<double,double>> &y_values, double length, int thresholdMeasure, double endPerThreshold, double &posEnd, double &meanW, double &meanH, bool processImages)
 {
@@ -1767,9 +1775,13 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 	double meanWidth=0,meanHeight=0;
 	int accTotal=0;
 
+	int counter=0;
+
 	for (int i = nbSampling; i >=0; i -= 1)
 	{
 	
+		counter++;
+
 		if((i)%(nbSampling/9)==0)
 			notify_("Step "+boost::lexical_cast<std::string>(floor((double)(i)/nbSampling*10+0.1)+1));
 
@@ -1777,7 +1789,7 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 			Retrieve position for the ith sample, and compute the tangent
 		*/
 
-		startCounter();
+		perfTiming::startCounter();
 
 		Wm5::Vector3d tan;
 		Wm5::Vector3d point;
@@ -1825,15 +1837,21 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 		viewer->addPolygon<pcl::PointXYZ>(cl,200,100,0,"poly"+boost::lexical_cast<std::string>(i));
 		}
 
-		stopShow("Axis computation");
+		perfTiming::stopShow("Axis computation");
 
-		startCounter();
+		perfTiming::startCounter();
 
 		/*
-
 		Coordinate conversion and translation of the starting point
+		(From world coordinates to volume)
 
-		(From world coordiantes to volume)
+			|
+			|
+		ax1 |      +
+			|
+			|______________>
+					ax2		
+
 
 		*/
 
@@ -1852,29 +1870,23 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 		ax1 /= pixSize;
 		ax2 /= pixSize;
 
-		stopShow("Axis correction");
-
-		startCounter();
+		perfTiming::stopShow("Axis correction");
+		perfTiming::startCounter();
 		
 		cv::Mat image(length,length,CV_8UC1);
 
-
-
-		int threshold = 50;
-
+		int thresholdBorders = 100;
 
 		computePlaneMat(image, length, point, ax1, ax2);
 
-		stopShow("Image");
-
-		startCounter();
+		perfTiming::stopShow("Image");
+		perfTiming::startCounter();
 				
 		std::vector<std::vector<cv::Point>> contour_list;
 
 		cv::Mat thresholded;
 
-		cv::threshold(image,thresholded,threshold,255,CV_THRESH_BINARY);
-
+		cv::threshold(image,thresholded,thresholdBorders,255,CV_THRESH_BINARY);
 		cv::findContours(thresholded, contour_list, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 
 		cv::Point2d center, pca_1, pca_2;
@@ -1884,16 +1896,16 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 		retrieveCorrectCenter(contour_inter,contour_list,length/2,length/2);
 
-		stopShow("Center");
+		perfTiming::stopShow("Center");
 
-		startCounter();
+		perfTiming::startCounter();
 		
 
 		if(contour_inter.size()>0)
 		{
 
 		
-		pca(image, center, pca_1, pca_2, e1, e2, threshold, contour_inter);
+		pca(image, center, pca_1, pca_2, e1, e2, thresholdBorders, contour_inter);
 
 		
 		
@@ -1984,7 +1996,7 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 				posEnd=(double)(nbSampling-i)/nbSampling;
 
-				if((wI>(1+endPerThreshold)*meanWidth&&hI>(1+endPerThreshold)*meanHeight)&&accTotal>200) // at least a few iterations needed to prevent unexpected exit of the algorithm
+				if(wI>(1+endPerThreshold)*meanWidth&&accTotal>200) //&&hI>(1+endPerThreshold)*meanHeight) // at least a few iterations needed to prevent unexpected exit of the algorithm
 				{
 					
 					return;
@@ -2021,12 +2033,12 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 		
 
 	
-
+		//if(counter>3) // the first computed points generally are incorrect
 		center_line->push_back(point_center);
 
-		stopShow("Other");
+		perfTiming::stopShow("Other");
 
-		startCounter();
+		perfTiming::startCounter();
 
 		}
 
@@ -2045,6 +2057,8 @@ void matVoxel::plans(pcl::visualization::PCLVisualizer * viewer, string path,pcl
 
 The skeleton stops before the actual start of the curve, the function projects the tangent vector in order to get the real start
 
+Should be fixed (wrong path)
+
 */
 void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold, int length)
 {
@@ -2062,7 +2076,7 @@ void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::Point
 	line->push_back(start);
 
 	oldpoint=point;
-	point+=tan;
+	//point+=tan;
 
 	pointVoxel=point;
 
@@ -2152,6 +2166,48 @@ void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::Point
 	}
 
 	pcl::PointXYZI end(200);
+	end.x=point[0];
+	end.y=point[1];
+	end.z=point[2];
+
+	
+	line->push_back(end);
+}
+
+void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::PointXYZI>::Ptr line,int threshold)
+{
+	Wm5::Vector3d tan;
+	Wm5::Vector3d point;
+	
+	tan = -cur->GetTangent(0);
+	point = cur->GetPosition(0);
+
+	tan/=pixSize;
+
+	pcl::PointXYZI start(1);
+	start.x=point[0];
+	start.y=point[1];
+	start.z=point[2];
+
+	line->push_back(start);
+	
+	
+	point[0] /=pixSize;
+	point[1] /= pixSize;
+	point[2] /= pixSize;
+
+	point[0] += cogX;
+	point[1] += cogY;
+	point[2] += cogZ;
+
+	
+
+	while(voxels[(int)(getAt(floor(point[0]+0.5),floor(point[1]+0.5),floor(point[2]+0.5)))]>threshold)
+	{
+		point+=tan;
+	}
+
+	pcl::PointXYZI end(200);
 	end.x=(point[0]-cogX)*pixSize;
 	end.y=(point[1]-cogY)*pixSize;
 	end.z=(point[2]-cogZ)*pixSize;
@@ -2159,6 +2215,7 @@ void matVoxel::projectBack(Wm5::BSplineCurve3d * cur, pcl::PointCloud<pcl::Point
 	
 	line->push_back(end);
 }
+
 
 void matVoxel::pca(cv::Mat image, cv::Point2d &center, cv::Point2d &vec1, cv::Point2d &vec2, double &e1, double &e2, int threshold, std::vector<cv::Point> contour)
 {

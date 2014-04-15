@@ -125,7 +125,7 @@ public:
     QGridLayout *gridLayout_9;
     QSpinBox *planedimspinBox;
     QLabel *label_10;
-    QPushButton *reconstruct_pushButton_5;
+    QPushButton *reconstruct_pushButton;
     QPushButton *runpushButton;
     QDockWidget *dockWidget_4;
     QWidget *dockWidgetContents_7;
@@ -591,10 +591,10 @@ public:
 
         verticalLayout_7->addLayout(gridLayout_9);
 
-        reconstruct_pushButton_5 = new QPushButton(groupBox_4);
-        reconstruct_pushButton_5->setObjectName(QString::fromUtf8("reconstruct_pushButton_5"));
+        reconstruct_pushButton = new QPushButton(groupBox_4);
+        reconstruct_pushButton->setObjectName(QString::fromUtf8("reconstruct_pushButton"));
 
-        verticalLayout_7->addWidget(reconstruct_pushButton_5);
+        verticalLayout_7->addWidget(reconstruct_pushButton);
 
 
         formLayout->setWidget(2, QFormLayout::SpanningRole, groupBox_4);
@@ -640,7 +640,7 @@ public:
         XRAY_guiClass->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget_4);
         dockWidget_5 = new QDockWidget(XRAY_guiClass);
         dockWidget_5->setObjectName(QString::fromUtf8("dockWidget_5"));
-        dockWidget_5->setMinimumSize(QSize(89, 256));
+        dockWidget_5->setMinimumSize(QSize(89, 0));
         dockWidget_5->setFloating(false);
         dockWidget_5->setFeatures(QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
         dockWidgetContents_2 = new QWidget();
@@ -760,7 +760,7 @@ public:
         label_6->setText(QApplication::translate("XRAY_guiClass", "# Averaging ", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("XRAY_guiClass", "End of line threshold ( %)", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("XRAY_guiClass", "Plane dimensions (um) :", 0, QApplication::UnicodeUTF8));
-        reconstruct_pushButton_5->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));
+        reconstruct_pushButton->setText(QApplication::translate("XRAY_guiClass", "Reconstruct path", 0, QApplication::UnicodeUTF8));
         runpushButton->setText(QApplication::translate("XRAY_guiClass", "Run", 0, QApplication::UnicodeUTF8));
 
         const bool __sortingEnabled = treeWidget->isSortingEnabled();

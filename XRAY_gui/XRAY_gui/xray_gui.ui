@@ -623,7 +623,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="reconstruct_pushButton_5">
+         <widget class="QPushButton" name="reconstruct_pushButton">
           <property name="text">
            <string>Reconstruct path</string>
           </property>
@@ -692,7 +692,7 @@
    <property name="minimumSize">
     <size>
      <width>89</width>
-     <height>256</height>
+     <height>0</height>
     </size>
    </property>
    <property name="floating">
