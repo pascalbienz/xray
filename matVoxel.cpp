@@ -2499,3 +2499,31 @@ void matVoxel::affineTransform(cv::Mat image, float angle, cv::Point2d &pca_1, c
 }
 
 
+double matVoxel::computeMoment(cv::Mat image, cv::Point2d &pca_1, cv::Point2d &center)
+{
+
+	int length=image.cols;
+
+	for (int a_1 = 0; a_1 < (int)length; a_1++)
+	{
+		uchar * p = image.ptr<uchar>(a_1);
+		for (int a_2 = 0; a_2 < length; a_2++)
+		{
+		
+		#pragma omp critical
+			{
+				if (getAt(vX, vY, vZ) > 0 && getAt(vX, vY, vZ) < w*h*d)
+					//p[a_2]=voxels[getAt(vX,vY,vZ)];
+					//p[a_2]=triLinear(cx,cy,cz);
+					p[a_2] = TriCubic(pos, voxels, w, h, d);
+				else
+					p[a_2] = 0;
+			}
+
+		}
+	}
+
+
+
+
+}

@@ -1196,6 +1196,9 @@ void XRAY_gui::reconstructPath(matVoxel * skeleton, Wm5::BSplineCurve3d * curve,
 
 	resultLength=splineIntegration;
 
+	resultH=meanH;
+	resultW=meanW;
+
 }
 
 
@@ -1234,7 +1237,7 @@ void XRAY_gui::on_actionExport_results_triggered()
 	QString path=QFileDialog::getSaveFileName(this, tr("Save settings"),
 		"","",&QString("*.xml"));
 
-	saveSettings(path);
+	saveSettings(path,true);
 }
 
 double XRAY_gui::resultLength,XRAY_gui::resultH,XRAY_gui::resultW;
@@ -1267,7 +1270,7 @@ void XRAY_gui::saveSettings( QString path, bool saveResults )
 	if(saveResults)
 	{
 
-		listParameters.insert("Result : length",QString::number(resultLength));
+		listParameters.insert("Result :length",QString::number(resultLength));
 		listParameters.insert("Result : H",QString::number(resultH));
 		listParameters.insert("Result : W",QString::number(resultW));
 

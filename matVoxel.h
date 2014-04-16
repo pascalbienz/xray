@@ -92,6 +92,7 @@ public:
 	void getWidthHeight( cv::Mat param1, cv::Point2d center, double e1, double e2, double &wI, double &hI , int threshold);
 	static	double getLength(Wm5::BSplineCurve3d * curve, int nbSampling);
 	static double getLength(pcl::PointCloud<pcl::PointXYZI>::Ptr cl);
+	double computeMoment(cv::Mat image, cv::Point2d &pca_1, cv::Point2d &center);
 	bool init;
 
 	
